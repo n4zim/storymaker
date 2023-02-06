@@ -1,0 +1,19 @@
+
+name:
+  en: Gender
+  fr: Genre
+
+type: choice
+
+values:
+  male:
+    name:
+      en: Male
+      fr: Masculin
+    ratio: 50
+
+  female:
+    name:
+      en: Female
+      fr: Féminin
+    ratio: 50
