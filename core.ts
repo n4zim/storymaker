@@ -2,25 +2,26 @@
 type Text = { en: string, fr: string }
 type NameByQuantity = { one: Text, many: Text }
 
-type State<S> = S & {
+export type State<Options> = {
   owner: Person
+  options: Options
 }
 
-export function Object<S = undefined>(options: {
+export function Object<Options = undefined>(options: {
   name: () => NameByQuantity
-  actions?: (state: State<S>, person: Person) => {
+  actions?: (state: State<Options>, person: Person) => {
     [key: string]: {
       description: () => Text
       condition: () => Text | void
       execute: () => void
     }
   }
-} & (S extends undefined ? {} : {
-  init: () => S
+} & (Options extends undefined ? {} : {
+  init: () => Options
 })) {
   return {
     name: options.name,
-    init: (state?: State<S>) => {
+    init: (state?: State<Options>) => {
       if(
         typeof state === "undefined"
         // @ts-ignore-next-line
