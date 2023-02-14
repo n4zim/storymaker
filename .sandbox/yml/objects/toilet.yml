@@ -1,0 +1,16 @@
+
+name: { en: Toilet, fr: Toilettes }
+
+parts:
+  flush:
+    name: { en: Flush handle, fr: Chasse d'eau }
+    actions:
+      activate:
+        name: { en: Activate, fr: Activer }
+  bowl:
+    name: { en: Bowl, fr: Cuvette }
+    actions:
+      lift:
+        name: { en: Lift, fr: Lever }
+      sit:
+        name: { en: Sit, fr: S'asseoir }

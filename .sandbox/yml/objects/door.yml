@@ -1,0 +1,20 @@
+
+name: { en: Door, fr: Porte }
+
+variables:
+  locked:
+    name: { en: Locked, fr: Verrouillée }
+    type: boolean
+    default: false
+  keys:
+    name: { en: Keys, fr: Clés }
+    type: list<object::key>
+    default: []
+
+actions:
+  open:
+    name: { en: Open, fr: Ouvrir }
+    conditions:
+      or:
+  close:
+    name: { en: Close, fr: Fermer }
