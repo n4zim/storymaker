@@ -1,5 +1,3 @@
 {
-  "yaml.schemas": {
-    ".schemas/attributes.json": [ "attributes/**/*.yml" ]
-  }
+  "deno.enable": true,
 }
