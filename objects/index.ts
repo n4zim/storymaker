@@ -1,7 +1,7 @@
-import door from "./door.ts"
-import key from "./key.ts"
+import house_door from "./house/door.ts"
+import house_key from "./house/key.ts"
 
 export default {
-  door,
-  key
+  house_door,
+  house_key
 }

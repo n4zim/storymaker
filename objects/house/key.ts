@@ -1,4 +1,4 @@
-import * as StoryMaker from "../core.ts"
+import * as StoryMaker from "../../core.ts"
 
 export default StoryMaker.Object({
   name: () => ({

@@ -38,6 +38,11 @@ function handle(type: string) {
 async function watchChanges(type: string) {
   handle(type)
   for await(const event of Deno.watchFs(type)) {
-    if(event.kind === "modify") handle(type)
+    if(
+      event.kind === "modify"
+      && !event.paths[0].endsWith("index.ts")
+    ) {
+      handle(type)
+    }
   }
 }
