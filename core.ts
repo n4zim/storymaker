@@ -3,13 +3,13 @@ type Text = { en: string, fr: string }
 type NameByQuantity = { one: Text, many: Text }
 
 export type State<Options> = {
-  owner: Person
+  owner: Actor["id"]
   options: Options
 }
 
 export function Object<Options = undefined>(options: {
   name: () => NameByQuantity
-  actions?: (state: State<Options>, person: Person) => {
+  actions?: (state: State<Options>, actor: Actor) => {
     [key: string]: {
       description: () => Text
       condition: () => Text | void
@@ -17,7 +17,7 @@ export function Object<Options = undefined>(options: {
     }
   }
 } & (Options extends undefined ? {} : {
-  init: () => Options
+  init: (options: Partial<Options>) => Options
 })) {
   return {
     name: options.name,
@@ -34,4 +34,10 @@ export function Object<Options = undefined>(options: {
   }
 }
 
-export type Person = string
+export type ObjectId = string
+
+export type Actor = {
+  id: string
+  has: (object: string) => boolean
+  hasOneOf: (objects: string[]) => boolean
+}

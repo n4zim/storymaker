@@ -1,4 +1,7 @@
 {
+  "tasks": {
+    "generateIndexes": "deno run --allow-read --allow-write .scripts/generateIndexes.ts"
+  },
   "lint": {
     "rules": {
       "exclude": [ "ban-types" ]
