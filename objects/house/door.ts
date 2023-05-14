@@ -1,16 +1,9 @@
 import * as StoryMaker from "../../core.ts"
 
-export enum Object_Door_Type {
-  CLASSIC,
-  MECHANICAL,
-  ELECTRONIC,
-}
-
 export interface Object_Door_Options {
-  type: Object_Door_Type
   open: boolean
   locked: boolean
-  keys: StoryMaker.ObjectId[]
+  keys: string[]
   security: number
 }
 
@@ -31,7 +24,6 @@ export default StoryMaker.Object<Object_Door_Options>({
     open: true,
     locked: false,
     keys: [],
-    type: options.type ?? Object_Door_Type.CLASSIC,
     security: options.security ?? 0,
   }),
 

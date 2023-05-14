@@ -1,3 +1,6 @@
+import objects from "./objects/index.ts"
+
+type ObjectId = keyof typeof objects
 
 type Text = { en: string, fr: string }
 type NameByQuantity = { one: Text, many: Text }
@@ -5,6 +8,7 @@ type NameByQuantity = { one: Text, many: Text }
 export type State<Options> = {
   owner: Actor["id"]
   options: Options
+  links: { [key: string]: ObjectId }
 }
 
 export function Object<Options = undefined>(options: {
@@ -33,8 +37,6 @@ export function Object<Options = undefined>(options: {
     },
   }
 }
-
-export type ObjectId = string
 
 export type Actor = {
   id: string

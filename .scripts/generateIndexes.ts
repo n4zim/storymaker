@@ -26,12 +26,12 @@ function handle(type: string) {
   let output = ""
   const values: string[] = []
   for(const obj of recursiveRead(type)) {
-    if(obj === "index") continue
+    if(obj.endsWith("index")) continue
     const value = obj.replace(/\//g, "_")
     output += `import ${value} from "./${obj}.ts"\n`
     values.push(value)
   }
-  output += `\nexport default {\n  ${values.join(",\n  ")}\n}\n`
+  output += `\nexport default {\n  ${values.sort().join(",\n  ")}\n}\n`
   Deno.writeTextFileSync(`${type}/index.ts`, output)
 }
 
