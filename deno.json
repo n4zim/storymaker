@@ -1,6 +1,7 @@
 {
   "tasks": {
     "dump": "deno run .scripts/dump.ts",
+    "dumpProduction": "deno run .scripts/dumpProduction.ts",
     "generateIndexes": "deno run --allow-read --allow-write .scripts/generateIndexes.ts"
   },
   "lint": {

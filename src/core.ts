@@ -1,4 +1,4 @@
-import objects from "./objects/index.ts"
+import objects from "./objects/mod.ts"
 
 type ObjectId = keyof typeof objects
 
