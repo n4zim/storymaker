@@ -1,17 +1,6 @@
-import objects from "./objects/mod.ts"
+import { Actor, NameByQuantity, State, Text } from "./types.ts"
 
-type ObjectId = keyof typeof objects
-
-type Text = { en: string, fr: string }
-type NameByQuantity = { one: Text, many: Text }
-
-export type State<Options> = {
-  owner: Actor["id"]
-  options: Options
-  links: { [key: string]: ObjectId }
-}
-
-export function Object<Options = undefined>(options: {
+export default function StoryMakerObject<Options = undefined>(options: {
   name: () => NameByQuantity
   actions?: (state: State<Options>, actor: Actor) => {
     [key: string]: {
@@ -36,10 +25,4 @@ export function Object<Options = undefined>(options: {
       }
     },
   }
-}
-
-export type Actor = {
-  id: string
-  has: (object: string) => boolean
-  hasOneOf: (objects: string[]) => boolean
 }

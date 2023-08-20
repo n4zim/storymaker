@@ -1,6 +1,6 @@
-import * as StoryMaker from "../../core.ts"
+import StoryMakerObject from "../../core/object.ts"
 
-export default StoryMaker.Object({
+export default StoryMakerObject({
   name: () => ({
     one: {
       en: "Solar panel",

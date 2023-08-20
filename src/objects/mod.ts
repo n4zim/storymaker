@@ -13,7 +13,7 @@ import house_locks_classic_key from "./house/locks/classic/key.ts"
 import house_locks_classic_lock from "./house/locks/classic/lock.ts"
 import house_door from "./house/door.ts"
 
-export default {
+const items = {
   chemicals_gasoline,
   energy_battery,
   energy_generator,
@@ -29,3 +29,7 @@ export default {
   resources_water,
   resources_wood
 }
+
+export default items
+
+export type ObjectId = keyof typeof items

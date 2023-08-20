@@ -1,5 +1,5 @@
 
-watchChanges("objects")
+watchChanges("src/objects", "Object")
 
 function recursiveRead(
   path: string,
@@ -22,27 +22,29 @@ function recursiveRead(
   return output
 }
 
-function handle(type: string) {
+function handle(type: string, name: string) {
   let output = ""
   const values: string[] = []
   for(const obj of recursiveRead(type)) {
-    if(obj.endsWith("index")) continue
+    if(obj.endsWith("mod")) continue
     const value = obj.replace(/\//g, "_")
     output += `import ${value} from "./${obj}.ts"\n`
     values.push(value)
   }
-  output += `\nexport default {\n  ${values.sort().join(",\n  ")}\n}\n`
-  Deno.writeTextFileSync(`${type}/index.ts`, output)
+  output += `\nconst items = {\n  ${values.sort().join(",\n  ")}\n}\n\n`
+    + `export default items\n\n`
+    + `export type ${name}Id = keyof typeof items\n`
+  Deno.writeTextFileSync(`${type}/mod.ts`, output)
 }
 
-async function watchChanges(type: string) {
-  handle(type)
+async function watchChanges(type: string, name: string) {
+  handle(type, name)
   for await(const event of Deno.watchFs(type)) {
     if(
       event.kind === "modify"
-      && !event.paths[0].endsWith("index.ts")
+      && !event.paths[0].endsWith("mod.ts")
     ) {
-      handle(type)
+      handle(type, name)
     }
   }
 }

@@ -1,4 +1,4 @@
-import * as StoryMaker from "../../core.ts"
+import StoryMakerObject from "../../core/object.ts"
 
 export interface Object_Door_Options {
   open: boolean
@@ -7,7 +7,7 @@ export interface Object_Door_Options {
   security: number
 }
 
-export default StoryMaker.Object<Object_Door_Options>({
+export default StoryMakerObject<Object_Door_Options>({
 
   name: () => ({
     one: {
