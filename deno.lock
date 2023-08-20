@@ -1,0 +1,22 @@
+{
+  "version": "2",
+  "remote": {
+    "https://deno.land/x/storymaker@0.0.2/core.ts": "732eda9defd533c222c4e33a94f8c3fbc6002b5e5e86437f33cf44d58010e453",
+    "https://deno.land/x/storymaker@0.0.2/mod.ts": "2b052f3ae76af77a39c9e9bb06d656b828a63433981053b15dddaaba9c6306d7",
+    "https://deno.land/x/storymaker@0.0.2/objects/chemicals/gasoline.ts": "a23796812aede2144232230d8ca6fa0c670d5819873376da5dc3fc1bbd2648d3",
+    "https://deno.land/x/storymaker@0.0.2/objects/energy/battery.ts": "41619577598ab8dc175d824565131950fd2dd3c12a35ccd7feaafe2228d1cca1",
+    "https://deno.land/x/storymaker@0.0.2/objects/energy/generator.ts": "a59852c9814cffe51f49efb06f84cfd5a85d0c4e66c41c24a8088d418d4f1e8e",
+    "https://deno.land/x/storymaker@0.0.2/objects/energy/solarPanel.ts": "3c3df2aea0316663dabe7e79bf5bb3370b78e25689fb99de70b1155407175aef",
+    "https://deno.land/x/storymaker@0.0.2/objects/house/door.ts": "b0594bfcb8630dabe906ff5a2ca87133f19ccca148f7dee37214b1cceb6707d5",
+    "https://deno.land/x/storymaker@0.0.2/objects/house/locks/classic/key.ts": "9ef25573212b1e0b52532c19a75eb6e7d7cf0ff578e66e394be1c2da74324361",
+    "https://deno.land/x/storymaker@0.0.2/objects/house/locks/classic/lock.ts": "9a862352c8770a69bf9ea0f67ddcd261bb958327413377cd31ed1cf307fd2075",
+    "https://deno.land/x/storymaker@0.0.2/objects/house/locks/electronic/card.ts": "185af81bab2709325d8cc35c73864b6dd2b22dad988ce40aa7af9fbde4beac42",
+    "https://deno.land/x/storymaker@0.0.2/objects/house/locks/electronic/reader.ts": "a98613a941581f685b2ee6be3a8d2df4e3af5491dbdf2a1e66223f330bd0e97f",
+    "https://deno.land/x/storymaker@0.0.2/objects/house/locks/keypad.ts": "5bdbe1a58f02689d8eac98266cd4bdcce5adc753f15e13547db5170b5df47e60",
+    "https://deno.land/x/storymaker@0.0.2/objects/medical/bandage.ts": "1efc1a9a82188da6e6ddd517c07b99fe744e7c89bafe000513741d1165b9bc29",
+    "https://deno.land/x/storymaker@0.0.2/objects/mod.ts": "7606d7629f06b77bcedcde5b0c33bf958e86b64da8ad3a022eda77e741bb2e3b",
+    "https://deno.land/x/storymaker@0.0.2/objects/resources/stone.ts": "2e3491ae5b18b87e196b250b13b1c1f83976fa1b738ab67c32560509b2461850",
+    "https://deno.land/x/storymaker@0.0.2/objects/resources/water.ts": "ea43ed03212df405a085d3d3e21845f5ec746335d4941c06257163f1716c9d9b",
+    "https://deno.land/x/storymaker@0.0.2/objects/resources/wood.ts": "18964d2df2703933384350897702c895af762ae684d76fd134acabba6bf7ad81"
+  }
+}
