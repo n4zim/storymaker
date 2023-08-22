@@ -39,6 +39,7 @@ impl Time {
     }
   }
 
+  #[allow(dead_code)]
   pub fn print(&self) {
     println!(
       "Day {} - {:02}:{:02}:{:02}",
