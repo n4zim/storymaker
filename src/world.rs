@@ -16,22 +16,34 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::{actor::Actor, time::Time, map::Map};
+use crate::{actors::Actor, time::Time, map::{Map, TileKind}};
 
 pub struct World {
   time: Time,
   #[allow(dead_code)]
   map: Map,
-  #[allow(dead_code)]
-  actors: Vec<Actor>,
+  pub actors: Vec<Actor>,
 }
 
 impl World {
   pub fn new(map: Map) -> World {
+    let mut actors = Vec::new();
+    let mut index = 1;
+    for (y, tiles) in map.tiles.iter().enumerate() {
+      for (x, tile) in tiles.iter().enumerate() {
+        if tile.kind == TileKind::House {
+          actors.push(Actor::new(
+            format!("Actor {}", index),
+            (x, y),
+          ));
+          index += 1;
+        }
+      }
+    }
     World {
       time: Time::new(),
       map,
-      actors: Vec::new(),
+      actors,
     }
   }
 
