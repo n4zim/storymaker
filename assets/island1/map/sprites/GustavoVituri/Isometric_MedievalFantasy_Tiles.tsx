@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.10" tiledversion="1.10.2" name="terrain" tilewidth="16" tileheight="17" tilecount="110" columns="11">
- <image source="../../../assets/GustavoVituri/Isometric_MedievalFantasy_Tiles.png" width="176" height="170"/>
+ <image source="../../../sprites/GustavoVituri/Isometric_MedievalFantasy_Tiles.png" width="176" height="170"/>
  <wangsets>
   <wangset name="terrain" type="corner" tile="48">
    <wangcolor name="grass" color="#00ff00" tile="26" probability="1"/>
