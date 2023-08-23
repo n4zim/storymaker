@@ -19,16 +19,21 @@
 use map::TileKind as TK;
 use tokio::time::{interval, Duration};
 
-mod actor;
+//mod actions;
+//mod actors;
 mod map;
-mod time;
-mod world;
+//mod time;
+//mod world;
 
 const INTERVAL: u64 = 1;
 
+pub type Position = (usize, usize);
+
 #[tokio::main]
 async fn main() {
-  let map = map::Map::new_with_tile_kinds(vec![
+  let map = map::Map::new_with_gen();
+
+  /*let map = map::Map::new_with_tile_kinds(vec![
     vec![ TK::Water, TK::Water,  TK::Water,  TK::Water,  TK::Water ],
     vec![ TK::Water, TK::Firm,   TK::House,  TK::Firm,   TK::Water ],
     vec![ TK::Water, TK::House,  TK::House,  TK::House,  TK::Water ],
@@ -42,10 +47,14 @@ async fn main() {
 
   let mut world = world::World::new(map);
 
+  for actor in world.actors.iter_mut() {
+    actor.action.tick();
+  }
+
   let mut interval = interval(Duration::from_millis(INTERVAL));
 
   loop {
     interval.tick().await;
     world.tick();
-  }
+  }*/
 }
