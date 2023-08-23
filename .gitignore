@@ -1,3 +1,4 @@
 target/
 assets/*/map/*.tiled-session
 assets/*/map/*.json
+assets/*/map/*.png
