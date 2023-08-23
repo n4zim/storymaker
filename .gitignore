@@ -1,1 +1,2 @@
 target/
+packs/*/map/*.tiled-session
