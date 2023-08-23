@@ -16,42 +16,46 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::rc::Rc;
 use crate::actors::Actor;
 
-pub trait Action {
-  fn tick(&mut self) -> Box<dyn Action> {
+pub trait Action: Clone {
+  fn tick(self, _actor: Actor) -> Box<Self> {
     Box::new(Idle)
   }
 }
 
+impl Clone for Box<dyn Action> {
+  fn clone(&self) -> Box<dyn Action> {
+    self.clone_box()
+  }
+}
+
+#[derive(Clone)]
 pub struct Idle;
 
 impl Action for Idle {}
 
-pub struct Eat {
-  actor: Rc<Actor>,
-}
+#[derive(Clone)]
+pub struct Eat;
 
 impl Action for Eat {
-  fn tick(&mut self) -> Box<dyn Action> {
-    println!("{} is eating", self.actor.name);
+  fn tick(self, actor: Actor) -> Box<Self> {
+    println!("{} is eating", actor.name);
     Box::new(Idle)
   }
 }
 
+#[derive(Clone)]
 pub struct Sleep {
-  actor: Rc<Actor>,
   duration: u64,
   started: bool,
 }
 
 impl Action for Sleep {
-  fn tick(&mut self) -> Box<dyn Action> {
+  fn tick(self, actor: Actor) -> Box<Self> {
     if !self.started {
-      println!("{} is sleeping", self.actor.name);
+      println!("{} is sleeping", actor.name);
       return Box::new(Sleep {
-        actor: Rc::clone(&self.actor),
         duration: self.duration,
         started: true,
       });
@@ -59,13 +63,12 @@ impl Action for Sleep {
 
     if self.duration > 0 {
       return Box::new(Sleep {
-        actor: Rc::clone(&self.actor),
         duration: self.duration - 1,
         started: true,
       });
     }
 
-    println!("{} is waking up", self.actor.name);
+    println!("{} is waking up", actor.name);
     Box::new(Idle)
   }
 }

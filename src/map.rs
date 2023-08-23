@@ -16,9 +16,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use image::{Rgb, ImageBuffer, RgbImage};
-use world_map_gen::RandomBoardGen;
-
 use crate::Position;
 
 #[derive(Debug, PartialEq)]
@@ -61,39 +58,6 @@ impl Map {
       tiles.push(row);
     }
     Map { tiles }
-  }
-
-  pub fn new_with_gen() -> Map {
-    let mut generator = RandomBoardGen::default();
-    let board = generator.gen_large(1000, 1000);
-
-    let mut image = RgbImage::new(board.width() as u32, board.height() as u32);
-
-    for (y, column) in board.rows().enumerate() {
-      for (x, row) in column.iter().enumerate() {
-        image.put_pixel(
-          x as u32,
-          y as u32,
-          Rgb(
-            match row.kind {
-              world_map_gen::LandKind::Sea => [95, 215, 255],
-              world_map_gen::LandKind::Mountain => [135, 95, 0],
-              world_map_gen::LandKind::Forest => [0, 95, 0],
-              world_map_gen::LandKind::Plain => [135, 255, 0],
-              world_map_gen::LandKind::Town => [255, 255, 0],
-              world_map_gen::LandKind::Top => [135, 135, 135],
-              world_map_gen::LandKind::Highland => [95, 95, 0],
-              world_map_gen::LandKind::DeepSea => [95, 95, 255],
-              world_map_gen::LandKind::Path => [215, 255, 175],
-            },
-          ),
-        );
-      }
-    }
-
-    image.save("map.png").unwrap();
-
-    Map { tiles: Vec::new() }
   }
 
   #[allow(dead_code)]

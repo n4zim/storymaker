@@ -16,36 +16,36 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::{cell::RefCell, rc::Rc, borrow::BorrowMut};
+use crate::{Position, actions::{Action, Sleep}};
 
-use crate::{Position, actions::{Action, Sleep, Idle}};
-
+#[derive(Clone)]
 pub struct Actor {
   pub name: String,
   pub house: Position,
 
   pub position: Position,
 
-  pub action: Box<dyn Action>,
+  action: Box<dyn Action>,
   history: Vec<Box<dyn Action>>,
 }
 
 impl Actor {
   pub fn new(name: String, house: Position) -> Actor {
-    let mut actor = Actor {
+    Actor {
       name,
       house,
       position: house,
-      action: Box::new(Idle),
+      action: Box::new(Sleep {
+        duration: 5,
+        started: false,
+      }),
       history: Vec::new(),
-    };
+    }
+  }
 
-    actor.action = Box::new(Sleep {
-      actor: Rc::new(actor),
-      duration: 5,
-      started: false,
-    });
-
-    actor
+  pub fn tick(&mut self) {
+    let action = self.action.tick(self.clone());
+    self.history.push(self.action);
+    self.action = action;
   }
 }
