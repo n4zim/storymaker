@@ -1,2 +1,3 @@
 target/
-packs/*/map/*.tiled-session
+assets/*/map/*.tiled-session
+assets/*/map/*.json

@@ -44,7 +44,7 @@ impl Actor {
   }
 
   pub fn tick(&mut self) {
-    let action = self.action.tick(self.clone());
+    let action = self.action.tick(self);
     self.history.push(self.action);
     self.action = action;
   }

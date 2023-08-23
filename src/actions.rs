@@ -18,24 +18,16 @@
 
 use crate::actors::Actor;
 
-pub trait Action: Clone {
+pub trait Action {
   fn tick(self, _actor: Actor) -> Box<Self> {
     Box::new(Idle)
   }
 }
 
-impl Clone for Box<dyn Action> {
-  fn clone(&self) -> Box<dyn Action> {
-    self.clone_box()
-  }
-}
-
-#[derive(Clone)]
 pub struct Idle;
 
 impl Action for Idle {}
 
-#[derive(Clone)]
 pub struct Eat;
 
 impl Action for Eat {
@@ -45,7 +37,6 @@ impl Action for Eat {
   }
 }
 
-#[derive(Clone)]
 pub struct Sleep {
   duration: u64,
   started: bool,
