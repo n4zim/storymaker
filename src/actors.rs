@@ -16,7 +16,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::{Position, actions::{Action, Sleep}};
+use crate::{
+  actions::{Action, Sleep},
+  Position,
+};
 
 #[derive(Clone)]
 pub struct Actor {
@@ -35,10 +38,7 @@ impl Actor {
       name,
       house,
       position: house,
-      action: Box::new(Sleep {
-        duration: 5,
-        started: false,
-      }),
+      action: Box::new(Sleep::new(10)),
       history: Vec::new(),
     }
   }

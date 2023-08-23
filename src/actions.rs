@@ -19,8 +19,8 @@
 use crate::actors::Actor;
 
 pub trait Action {
-  fn tick(self, _actor: Actor) -> Box<Self> {
-    Box::new(Idle)
+  fn tick(self, actor: Actor) -> Self {
+    Idle
   }
 }
 
@@ -31,31 +31,40 @@ impl Action for Idle {}
 pub struct Eat;
 
 impl Action for Eat {
-  fn tick(self, actor: Actor) -> Box<Self> {
+  fn tick(self, actor: Actor) -> Self {
     println!("{} is eating", actor.name);
-    Box::new(Idle)
+    Idle
   }
 }
 
 pub struct Sleep {
   duration: u64,
-  started: bool,
+  current: u64,
+}
+
+impl Sleep {
+  pub fn new(duration: u64) -> Self {
+    Sleep {
+      duration,
+      current: 0,
+    }
+  }
 }
 
 impl Action for Sleep {
-  fn tick(self, actor: Actor) -> Box<Self> {
-    if !self.started {
-      println!("{} is sleeping", actor.name);
+  fn tick(self, actor: Actor) -> Box<dyn Action> {
+    if self.current == 0 {
+      println!("{} is going to sleeping", actor.name);
       return Box::new(Sleep {
         duration: self.duration,
-        started: true,
+        current: 1,
       });
     }
 
-    if self.duration > 0 {
+    if self.duration > self.current {
       return Box::new(Sleep {
-        duration: self.duration - 1,
-        started: true,
+        duration: self.duration,
+        current: self.current + 1,
       });
     }
 

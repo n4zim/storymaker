@@ -21,6 +21,7 @@ use crate::Position;
 #[derive(Debug, PartialEq)]
 pub enum TileKind {
   Grass,
+  Sand,
   House,
   Firm,
   Mine,
