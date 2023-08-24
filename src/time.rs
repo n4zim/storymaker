@@ -16,10 +16,14 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-const SECONDS_PER_MINUTE: u32 = 60;
-const MINUTES_PER_HOUR: u32 = 60;
-const HOURS_PER_DAY: u32 = 24;
+pub const SECONDS_PER_MINUTE: u32 = 60;
+pub const MINUTES_PER_HOUR: u32 = 60;
+pub const HOURS_PER_DAY: u32 = 24;
 
+pub const SECONDS_PER_HOUR: u32 = MINUTES_PER_HOUR * SECONDS_PER_MINUTE;
+pub const SECONDS_PER_DAY: u32 = HOURS_PER_DAY * SECONDS_PER_HOUR;
+
+#[derive(Clone)]
 pub struct Time {
   pub day: i32,
   pub hour: u32,
@@ -56,14 +60,22 @@ impl Time {
     }
   }
 
-  #[allow(dead_code)]
-  pub fn print(&self) {
-    println!(
+  pub fn elapsed(&self, other: &Time) -> u32 {
+    let mut elapsed = 0;
+    elapsed += (self.day - other.day) as u32 * SECONDS_PER_DAY;
+    elapsed += (self.hour - other.hour) * SECONDS_PER_HOUR;
+    elapsed += (self.minute - other.minute) * SECONDS_PER_MINUTE;
+    elapsed += self.second - other.second;
+    elapsed
+  }
+
+  pub fn to_string(&self) -> String {
+    format!(
       "Day {} - {:02}:{:02}:{:02}",
       self.day,
       self.hour,
       self.minute,
       self.second,
-    );
+    )
   }
 }

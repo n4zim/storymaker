@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::{actors::Actor, time::Time, map::{Map, TileKind}};
+use crate::{actors::Actor, time::Time, map::{Map, BuildingKind}};
 
 pub struct World {
   time: Time,
@@ -27,12 +27,14 @@ pub struct World {
 
 impl World {
   pub fn new(map: Map) -> World {
+    let time = Time::new();
     let mut actors = Vec::new();
     let mut index = 1;
-    for (y, tiles) in map.tiles.iter().enumerate() {
-      for (x, tile) in tiles.iter().enumerate() {
-        if tile.kind == TileKind::House {
+    for (y, tiles) in map.buildings.iter().enumerate() {
+      for (x, building) in tiles.iter().enumerate() {
+        if building == &BuildingKind::House {
           actors.push(Actor::new(
+            &time,
             format!("Actor {}", index),
             (x, y),
           ));
@@ -40,17 +42,18 @@ impl World {
         }
       }
     }
-    World {
-      time: Time::new(),
-      map,
-      actors,
-    }
+    World { time, map, actors }
   }
 
   pub fn tick(&mut self) {
     if self.time.minute == 0 && self.time.second == 0 {
       println!("[[ DAY {} - HOUR {} ]]", self.time.day, self.time.hour);
     }
+
+    for actor in self.actors.iter_mut() {
+      actor.tick(&self.time);
+    }
+
     self.time.next();
   }
 }

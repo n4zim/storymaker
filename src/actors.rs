@@ -18,34 +18,34 @@
 
 use crate::{
   actions::{Action, Sleep},
-  Position,
+  map::Position, time::{Time, SECONDS_PER_HOUR},
 };
 
-#[derive(Clone)]
 pub struct Actor {
   pub name: String,
   pub house: Position,
 
   pub position: Position,
 
-  action: Box<dyn Action>,
+  pub action: Box<dyn Action>,
   history: Vec<Box<dyn Action>>,
 }
 
 impl Actor {
-  pub fn new(name: String, house: Position) -> Actor {
+  pub fn new(time: &Time, name: String, house: Position) -> Actor {
     Actor {
       name,
       house,
       position: house,
-      action: Box::new(Sleep::new(10)),
+      action: Box::new(Sleep::new(time, SECONDS_PER_HOUR * 2)),
       history: Vec::new(),
     }
   }
 
-  pub fn tick(&mut self) {
-    let action = self.action.tick(self);
-    self.history.push(self.action);
-    self.action = action;
+  pub fn tick(&mut self, time: &Time) {
+    if let Some((old, new)) = self.action.tick(self, time) {
+      self.history.push(old);
+      self.action = new;
+    }
   }
 }

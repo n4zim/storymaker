@@ -16,54 +16,49 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::Position;
+pub type Position = (usize, usize);
 
 #[derive(Debug, PartialEq)]
-pub enum TileKind {
-  Grass,
-  Sand,
-  House,
-  Firm,
-  Mine,
-  Forest,
+pub enum TerrainKind {
   Water,
+  Sand,
+  Grass,
+  //Forest,
 }
 
-pub struct Tile {
-  pub kind: TileKind,
-}
-
-impl Tile {
-  pub fn new(kind: TileKind) -> Tile {
-    Tile { kind }
-  }
+#[derive(Debug, PartialEq)]
+pub enum BuildingKind {
+  None,
+  House,
+  Workplace,
+  //Mine,
 }
 
 pub struct Map {
-  pub tiles: Vec<Vec<Tile>>,
+  pub terrain: Vec<Vec<TerrainKind>>,
+  pub buildings: Vec<Vec<BuildingKind>>,
 }
 
 impl Map {
-  #[allow(dead_code)]
-  pub fn new(tiles: Vec<Vec<Tile>>) -> Map {
-    Map { tiles }
+  pub fn new(terrain: Vec<Vec<TerrainKind>>, buildings: Vec<Vec<BuildingKind>>) -> Map {
+    Map { terrain, buildings }
   }
 
-  pub fn new_with_tile_kinds(tile_kinds: Vec<Vec<TileKind>>) -> Map {
+  /*pub fn new_with_tile_kinds(tile_kinds: Vec<Vec<TerrainKind>>) -> Map {
     let mut tiles = Vec::new();
     for column in tile_kinds {
       let mut row = Vec::new();
       for tile_kind in column {
-        row.push(Tile::new(tile_kind));
+        row.push(Terrain::new(tile_kind));
       }
       tiles.push(row);
     }
     Map { tiles }
-  }
+  }*/
 
   #[allow(dead_code)]
-  pub fn get_tile(&self, x: usize, y: usize) -> &Tile {
-    &self.tiles[x][y]
+  pub fn get_terrain_kind(&self, x: usize, y: usize) -> &TerrainKind {
+    &self.terrain[x][y]
   }
 
   fn distance(from: Position, to: Position) -> i32 {
@@ -72,17 +67,16 @@ impl Map {
     x + y
   }
 
-  #[allow(dead_code)]
   pub fn print(&self) {
-    for (y, column) in self.tiles.iter().enumerate() {
-      for (x, row) in column.iter().enumerate() {
-        if row.kind == TileKind::Grass {
+    for (y, column) in self.buildings.iter().enumerate() {
+      for (x, building) in column.iter().enumerate() {
+        if building == &BuildingKind::None {
           continue;
         }
-        println!("# {:?}({}, {})", row.kind, x, y);
-        for (y2, column2) in self.tiles.iter().enumerate() {
-          for (x2, row2) in column2.iter().enumerate() {
-            if row2.kind == TileKind::Grass {
+        println!("# {:?}({}, {})", building, x, y);
+        for (y2, column2) in self.buildings.iter().enumerate() {
+          for (x2, building2) in column2.iter().enumerate() {
+            if building2 == &BuildingKind::None {
               continue;
             }
             if x == x2 && y == y2 {
@@ -91,7 +85,7 @@ impl Map {
             let distance = Map::distance((x, y), (x2, y2));
             println!(
               "  - {:?}({}, {}) is {} unit(s) away",
-              row2.kind, x2, y2, distance,
+              building2, x2, y2, distance,
             );
           }
         }

@@ -16,11 +16,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::actors::Actor;
+use crate::{actors::Actor, time::Time};
 
 pub trait Action {
-  fn tick(self, actor: Actor) -> Self {
-    Idle
+  #[allow(unused_variables)]
+  fn tick(&self, actor: &Actor, time: &Time) -> Option<(Box<dyn Action>, Box<dyn Action>)> {
+    None
   }
 }
 
@@ -31,44 +32,39 @@ impl Action for Idle {}
 pub struct Eat;
 
 impl Action for Eat {
-  fn tick(self, actor: Actor) -> Self {
+  fn tick(&self, actor: &Actor, _time: &Time) -> Option<(Box<dyn Action>, Box<dyn Action>)> {
     println!("{} is eating", actor.name);
-    Idle
+    Some((Box::new(Eat), Box::new(Idle)))
   }
 }
 
+
 pub struct Sleep {
-  duration: u64,
-  current: u64,
+  time: Time,
+  duration: u32,
 }
 
 impl Sleep {
-  pub fn new(duration: u64) -> Self {
+  pub fn new(time: &Time, duration: u32) -> Sleep {
     Sleep {
+      time: time.clone(),
       duration,
-      current: 0,
     }
   }
 }
 
 impl Action for Sleep {
-  fn tick(self, actor: Actor) -> Box<dyn Action> {
-    if self.current == 0 {
-      println!("{} is going to sleeping", actor.name);
-      return Box::new(Sleep {
-        duration: self.duration,
-        current: 1,
-      });
+  fn tick(&self, actor: &Actor, time: &Time) -> Option<(Box<dyn Action>, Box<dyn Action>)> {
+    let elapsed = time.elapsed(&self.time);
+    if elapsed == 0 {
+      println!("{} starts to sleep at {}", actor.name, time.to_string());
+    } else if elapsed >= self.duration {
+      println!("{} wakes up", actor.name);
+      return Some((
+        Box::new(Sleep{ time: time.clone(), duration: self.duration }),
+        Box::new(Idle)
+      ));
     }
-
-    if self.duration > self.current {
-      return Box::new(Sleep {
-        duration: self.duration,
-        current: self.current + 1,
-      });
-    }
-
-    println!("{} is waking up", actor.name);
-    Box::new(Idle)
+    None
   }
 }

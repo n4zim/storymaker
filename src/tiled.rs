@@ -16,41 +16,55 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::map::{Map, Tile};
+use crate::map::{Map, BuildingKind, TerrainKind};
 use serde::Deserialize;
 use serde_xml_rs::from_str;
 use std::fs::read_to_string;
 
-pub fn read_map(name: String) -> Map {
-  let mut tiles = Vec::<Vec<Tile>>::new();
-
+pub fn read_map(name: &str) -> Map {
   let path = format!("assets/{}/map/{}.tmx", name, name);
 
   let map = read_to_string(path).unwrap();
   let map = from_str::<TiledMap>(&map).unwrap();
 
+  let mut terrain = Vec::<Vec<TerrainKind>>::new();
+  let mut buildings = Vec::<Vec<BuildingKind>>::new();
+
   for layer in map.layers {
-    if layer.name == "Root" {
-      for column in layer.data.value.split("\n").collect::<Vec<&str>>() {
-        tiles.push(
+    for column in layer.data.value.split("\n").collect::<Vec<&str>>() {
+      if layer.name == "terrain" {
+        terrain.push(
           column
             .split(",")
             .filter(|tile| tile != &"")
             .map(|tile| {
-              Tile::new(match tile.parse::<usize>().unwrap() {
-                8 => crate::map::TileKind::Water,
-                4 => crate::map::TileKind::Sand,
-                _ => crate::map::TileKind::Grass,
-              })
+              match tile.parse::<usize>().unwrap() {
+                8 => crate::map::TerrainKind::Water,
+                4 => crate::map::TerrainKind::Sand,
+                _ => crate::map::TerrainKind::Grass,
+              }
             })
-            .collect::<Vec<Tile>>(),
+            .collect::<Vec<TerrainKind>>(),
+        );
+      } else if layer.name == "buildings" {
+        buildings.push(
+          column
+            .split(",")
+            .filter(|tile| tile != &"")
+            .map(|tile| {
+              match tile.parse::<usize>().unwrap() {
+                44 => crate::map::BuildingKind::House,
+                33 => crate::map::BuildingKind::Workplace,
+                _ => crate::map::BuildingKind::None,
+              }
+            })
+            .collect::<Vec<BuildingKind>>(),
         );
       }
-      break;
     }
   }
 
-  Map::new(tiles)
+  Map::new(terrain, buildings)
 }
 
 #[derive(Debug, Deserialize)]

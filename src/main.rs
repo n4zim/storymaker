@@ -28,17 +28,13 @@ mod world;
 
 const INTERVAL: u64 = 1;
 
-pub type Position = (usize, usize);
-
 #[tokio::main]
 async fn main() {
-  let map = tiled::read_map("island1".to_string());
+  let map = tiled::read_map("island1");
+
+  map.print();
 
   let mut world = world::World::new(map);
-
-  for actor in world.actors.iter_mut() {
-    actor.tick();
-  }
 
   let mut interval = interval(Duration::from_millis(INTERVAL));
 
