@@ -16,14 +16,22 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use bevy::{input::Input, math::Vec3, prelude::*, render::camera::Camera};
+use bevy::{
+  input::{
+    mouse::{MouseMotion, MouseWheel},
+    Input,
+  },
+  math::Vec3,
+  prelude::*,
+  render::camera::Camera,
+};
 
 pub fn movement(
   time: Res<Time>,
   keyboard_input: Res<Input<KeyCode>>,
-  mut query: Query<(&mut Transform, &mut OrthographicProjection), With<Camera>>,
+  mut query: Query<&mut Transform, With<Camera>>,
 ) {
-  for (mut transform, mut ortho) in query.iter_mut() {
+  for mut transform in query.iter_mut() {
     let mut direction = Vec3::ZERO;
 
     if keyboard_input.pressed(KeyCode::Left) {
@@ -42,22 +50,43 @@ pub fn movement(
       direction -= Vec3::new(0.0, 1.0, 0.0);
     }
 
-    if keyboard_input.pressed(KeyCode::Home) {
-      ortho.scale += 0.1;
-    }
-
-    if keyboard_input.pressed(KeyCode::End) {
-      ortho.scale -= 0.1;
-    }
-
-    if ortho.scale < 0.1 {
-      ortho.scale = 0.1;
-    } else if ortho.scale > 10.0 {
-      ortho.scale = 10.0;
-    }
-
     let z = transform.translation.z;
     transform.translation += time.delta_seconds() * direction * 500.;
     transform.translation.z = z;
+  }
+}
+
+pub fn zoom(
+  mut scroll: EventReader<MouseWheel>,
+  mut query: Query<&mut OrthographicProjection, With<Camera>>,
+) {
+  for mut ortho in query.iter_mut() {
+    for event in scroll.iter() {
+      ortho.scale -= event.y / 10.0;
+      if ortho.scale < 0.1 {
+        ortho.scale = 0.1;
+      } else if ortho.scale > 10.0 {
+        ortho.scale = 10.0;
+      }
+    }
+  }
+}
+
+pub fn right_click_movement(
+  mut mouse_motion_events: EventReader<MouseMotion>,
+  input: Res<Input<MouseButton>>,
+  mut query: Query<&mut Transform, With<Camera>>,
+) {
+  let mut delta = Vec2::ZERO;
+  if input.pressed(MouseButton::Right) {
+    for event in mouse_motion_events.iter() {
+      delta -= event.delta;
+    }
+  }
+  if delta != Vec2::ZERO {
+    for mut transform in query.iter_mut() {
+      transform.translation.x += delta.x * transform.scale.x * 2.0;
+      transform.translation.y -= delta.y * transform.scale.y * 2.0;
+    }
   }
 }
