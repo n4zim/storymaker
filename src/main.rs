@@ -16,6 +16,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::fs;
+
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 
@@ -27,7 +29,26 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
   let texture_handle: Handle<Image> = asset_server
     .load("island1/sprites/GustavoVituri/Isometric_MedievalFantasy_Tiles.png");
 
-  let map_size = TilemapSize { x: 10, y: 10 };
+  let map: serde_json::Value = serde_json::from_str(
+    &fs::read_to_string("assets/island1/map/world.json").unwrap(),
+  )
+  .unwrap();
+
+  let map_size = TilemapSize {
+    x: map.get("width").unwrap().as_u64().unwrap() as u32,
+    y: map.get("height").unwrap().as_u64().unwrap() as u32,
+  };
+
+  for layer in map.get("layers").unwrap().as_array().unwrap() {
+    let name = layer.get("name").unwrap().as_str().unwrap();
+    let data = layer.get("data").unwrap().as_array().unwrap();
+    for (i, tile) in data.iter().enumerate() {
+      let y = i % map_size.x as usize;
+      let x = i / map_size.x as usize;
+      println!("{} - {} - {}:{}", name, tile, x, y);
+    }
+  }
+
   let mut tile_storage = TileStorage::empty(map_size);
   let tilemap_entity = commands.spawn_empty().id();
   let tilemap_id = TilemapId(tilemap_entity);
@@ -36,12 +57,11 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     for y in 0..map_size.y {
       for x in 0..map_size.x {
         let tile_pos = TilePos { x, y };
-        println!("tile_pos: {:?}", tile_pos);
         let tile_entity = parent
           .spawn(TileBundle {
             position: tile_pos,
             tilemap_id,
-            texture_index: TileTextureIndex(0),
+            texture_index: TileTextureIndex(1),
             ..Default::default()
           })
           .id();
@@ -50,9 +70,15 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     }
   });
 
-  let tile_size = TilemapTileSize { x: 16.0, y: 17.0 };
-  let grid_size = TilemapTileSize { x: 16.0, y: -8.5 }.into();
-  let map_type = TilemapType::Isometric(IsoCoordSystem::Staggered);
+  let tile_size = TilemapTileSize { x: 16.0, y: 16.0 };
+
+  let grid_size = TilemapTileSize {
+    x: map.get("tilewidth").unwrap().as_u64().unwrap() as f32,
+    y: map.get("tileheight").unwrap().as_u64().unwrap() as f32,
+  }
+  .into();
+
+  let map_type = TilemapType::Isometric(IsoCoordSystem::Diamond);
 
   commands.entity(tilemap_entity).insert(TilemapBundle {
     grid_size,
@@ -84,5 +110,7 @@ fn main() {
     .add_plugins(TilemapPlugin)
     .add_systems(Startup, startup)
     .add_systems(Update, camera::movement)
+    .add_systems(Update, camera::zoom)
+    .add_systems(Update, camera::right_click_movement)
     .run();
 }

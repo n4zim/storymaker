@@ -2883,6 +2883,7 @@ version = "0.0.1"
 dependencies = [
  "bevy",
  "bevy_ecs_tilemap 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_json",
 ]
 
 [[package]]
