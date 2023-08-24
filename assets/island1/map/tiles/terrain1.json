@@ -1,0 +1,58 @@
+{ "columns":11,
+ "grid":
+    {
+     "height":17,
+     "orientation":"isometric",
+     "width":16
+    },
+ "image":"..\/..\/sprites\/GustavoVituri\/Isometric_MedievalFantasy_Tiles.png",
+ "imageheight":170,
+ "imagewidth":176,
+ "margin":0,
+ "name":"terrain1",
+ "spacing":0,
+ "tilecount":110,
+ "tiledversion":"1.10.2",
+ "tileheight":17,
+ "tilewidth":16,
+ "type":"tileset",
+ "version":"1.10",
+ "wangsets":[
+        {
+         "colors":[
+                {
+                 "color":"#ff0000",
+                 "name":"",
+                 "probability":1,
+                 "tile":-1
+                }],
+         "name":"path_high",
+         "tile":-1,
+         "type":"edge",
+         "wangtiles":[
+                {
+                 "tileid":44,
+                 "wangid":[0, 0, 1, 0, 0, 0, 1, 0]
+                }, 
+                {
+                 "tileid":45,
+                 "wangid":[1, 0, 0, 0, 1, 0, 0, 0]
+                }, 
+                {
+                 "tileid":51,
+                 "wangid":[0, 0, 1, 0, 1, 0, 0, 0]
+                }, 
+                {
+                 "tileid":52,
+                 "wangid":[1, 0, 1, 0, 0, 0, 0, 0]
+                }, 
+                {
+                 "tileid":53,
+                 "wangid":[1, 0, 0, 0, 0, 0, 1, 0]
+                }, 
+                {
+                 "tileid":54,
+                 "wangid":[0, 0, 0, 0, 1, 0, 1, 0]
+                }]
+        }]
+}
