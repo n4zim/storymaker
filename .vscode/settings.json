@@ -3,6 +3,6 @@
   "editor.formatOnSave": true,
   "rust-analyzer.linkedProjects": [
     "./Cargo.toml",
-    "./Cargo.toml"
+    "./worlds/Cargo.toml"
   ]
 }

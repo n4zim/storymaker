@@ -22,6 +22,7 @@ use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 
 mod camera;
+mod map;
 
 fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
   commands.spawn(Camera2dBundle::default());
@@ -113,6 +114,7 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 fn main() {
   App::new()
+    .add_plugins(map::MapPlugin)
     .insert_resource(TilemapRenderSettings {
       render_chunk_size: UVec2::new(3, 1),
       y_sort: true,
