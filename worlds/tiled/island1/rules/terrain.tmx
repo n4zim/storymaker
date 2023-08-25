@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.10.2" orientation="isometric" renderorder="left-up" width="30" height="20" tilewidth="16" tileheight="8" infinite="1" nextlayerid="6" nextobjectid="1">
- <tileset firstgid="1" source="../tiles/terrain1.json"/>
+ <tileset firstgid="1" source="../tiles/terrain.json"/>
  <layer id="3" name="regions" width="30" height="20">
   <data encoding="csv"/>
  </layer>

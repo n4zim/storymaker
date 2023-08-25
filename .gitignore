@@ -1,2 +1,2 @@
 target/
-assets/*/map/*.tiled-session
+worlds/tiled/*/*.tiled-session
