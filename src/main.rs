@@ -19,7 +19,6 @@
 use bevy::prelude::*;
 
 mod camera;
-mod global;
 mod world;
 
 fn main() {
