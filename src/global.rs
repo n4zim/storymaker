@@ -16,26 +16,29 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use bevy::prelude::*;
+use std::collections::HashMap;
 
-mod camera;
-mod global;
-mod world;
+use serde::{Deserialize, Serialize};
 
-fn main() {
-  App::new()
-    .add_plugins(
-      DefaultPlugins
-        .set(WindowPlugin {
-          primary_window: Some(Window {
-            title: String::from("StoryMaker"),
-            ..Default::default()
-          }),
-          ..default()
-        })
-        .set(ImagePlugin::default_nearest()),
-    )
-    .add_plugins(world::WorldPlugin)
-    .add_plugins(camera::CameraPlugin)
-    .run();
+#[derive(Serialize, Deserialize)]
+pub struct WorldConfig {
+  pub size_x: u32,
+  pub size_y: u32,
+  pub grid_x: f32,
+  pub grid_y: f32,
+  pub tile_sets: HashMap<String, WorldConfigTileSet>,
+  pub layers: Vec<WorldConfigLayer>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct WorldConfigTileSet {
+  pub source: String,
+  pub size_x: f32,
+  pub size_y: f32,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct WorldConfigLayer {
+  pub name: String,
+  pub tiles: Vec<Vec<u32>>,
 }

@@ -1,2 +1,2 @@
 target/
-worlds/tiled/*/*.tiled-session
+tiled/*/*.tiled-session
