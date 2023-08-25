@@ -34,7 +34,7 @@ fn main() {
         })
         .set(ImagePlugin::default_nearest()),
     )
-    .add_plugins(world::MapPlugin)
+    .add_plugins(world::WorldPlugin)
     .add_plugins(camera::CameraPlugin)
     .run();
 }

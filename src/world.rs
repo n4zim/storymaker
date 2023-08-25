@@ -20,9 +20,9 @@ use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use std::{collections::HashMap, fs::read_to_string};
 
-pub struct MapPlugin;
+pub struct WorldPlugin;
 
-impl Plugin for MapPlugin {
+impl Plugin for WorldPlugin {
   fn build(&self, app: &mut App) {
     app
       .insert_resource(TilemapRenderSettings {
@@ -34,10 +34,8 @@ impl Plugin for MapPlugin {
   }
 }
 
-const WORLD_NAME: &str = "island1";
-
 fn init(mut commands: Commands, asset_server: Res<AssetServer>) {
-  let world = World::new(asset_server, WORLD_NAME);
+  let world = World::new(asset_server, "island1");
   world.render(&mut commands);
   //commands.insert_resource(world);
 }
@@ -48,7 +46,35 @@ pub struct World {
   grid: TilemapGridSize,
   terrain_texture: TilemapTexture,
   terrain_size: TilemapTileSize,
-  tiles: Vec<WorldTiles>,
+  layers: Vec<WorldLayer>,
+}
+
+struct WorldLayer {
+  name: String,
+  tiles: Vec<Vec<Option<u32>>>,
+}
+
+#[derive(serde::Deserialize)]
+struct WorldSource {
+  size_x: u32,
+  size_y: u32,
+  grid_x: f32,
+  grid_y: f32,
+  tile_sets: HashMap<String, TileSetSource>,
+  layers: Vec<LayerSource>,
+}
+
+#[derive(serde::Deserialize)]
+struct TileSetSource {
+  source: String,
+  size_x: f32,
+  size_y: f32,
+}
+
+#[derive(serde::Deserialize)]
+struct LayerSource {
+  name: String,
+  tiles: Vec<Vec<u32>>,
 }
 
 impl World {
@@ -58,20 +84,20 @@ impl World {
     )
     .unwrap();
 
-    let mut tiles = Vec::<WorldTiles>::new();
+    let mut tiles = Vec::<WorldLayer>::new();
 
-    for (name, layer) in world.layers.iter() {
+    for layer in world.layers.iter() {
       let mut grid = Vec::new();
-      for row in layer {
+      for row in layer.tiles.iter() {
         let mut row_tiles = Vec::new();
         for tile in row {
           row_tiles.push(if *tile == 0 { None } else { Some(*tile - 1) });
         }
         grid.push(row_tiles);
       }
-      tiles.push(WorldTiles {
-        name: name.clone(),
-        grid,
+      tiles.push(WorldLayer {
+        name: layer.name.clone(),
+        tiles: grid,
       });
     }
 
@@ -93,17 +119,19 @@ impl World {
       terrain_texture: TilemapTexture::Single(
         asset_server.load(&terrain.source),
       ),
-      tiles,
+      layers: tiles,
     }
   }
 
   fn render(&self, commands: &mut Commands) {
     let map_type = TilemapType::Isometric(IsoCoordSystem::Diamond);
-    for (layer_index, tiles) in self.tiles.iter().enumerate() {
+    for (layer_index, tiles) in self.layers.iter().enumerate() {
+      println!("Rendering layer {}", tiles.name);
+
       let mut storage = TileStorage::empty(self.size);
       let layer_entity = commands.spawn_empty().id();
 
-      for (x, row) in tiles.grid.iter().enumerate() {
+      for (x, row) in tiles.tiles.iter().enumerate() {
         for (y, tile) in row.iter().enumerate() {
           if let Some(tile) = tile {
             let position = TilePos {
@@ -142,28 +170,4 @@ impl World {
       });
     }
   }
-}
-
-type WorldTilesGrid = Vec<Vec<Option<u32>>>;
-
-pub struct WorldTiles {
-  name: String,
-  grid: WorldTilesGrid,
-}
-
-#[derive(serde::Deserialize)]
-struct WorldSource {
-  size_x: u32,
-  size_y: u32,
-  grid_x: f32,
-  grid_y: f32,
-  tile_sets: HashMap<String, TileSetSource>,
-  layers: HashMap<String, Vec<Vec<u32>>>,
-}
-
-#[derive(serde::Deserialize)]
-struct TileSetSource {
-  source: String,
-  size_x: f32,
-  size_y: f32,
 }

@@ -34,7 +34,7 @@ struct World {
   grid_x: f32,
   grid_y: f32,
   tile_sets: HashMap<String, TileSet>,
-  layers: HashMap<String, Vec<Vec<u32>>>,
+  layers: Vec<Layer>,
 }
 
 #[derive(Serialize)]
@@ -42,6 +42,12 @@ struct TileSet {
   source: String,
   size_x: f32,
   size_y: f32,
+}
+
+#[derive(Serialize)]
+struct Layer {
+  name: String,
+  tiles: Vec<Vec<u32>>,
 }
 
 fn main() {
@@ -77,10 +83,10 @@ fn main() {
       },
     );
 
-    let mut layers = HashMap::<String, Vec<Vec<u32>>>::new();
+    let mut layers = Vec::<Layer>::new();
 
     for layer in &world.layers {
-      let mut columns = Vec::<Vec<u32>>::new();
+      let mut tiles = Vec::<Vec<u32>>::new();
       for x in 0..world.width {
         let mut row = Vec::<u32>::new();
         for y in 0..world.height {
@@ -88,9 +94,12 @@ fn main() {
             layer.data[(x + (world.height - y - 1) * world.width) as usize];
           row.push(tile);
         }
-        columns.push(row);
+        tiles.push(row);
       }
-      layers.insert(layer.name.clone(), columns);
+      layers.push(Layer {
+        name: layer.name.clone(),
+        tiles,
+      });
     }
 
     let output = World {

@@ -32,9 +32,9 @@ impl Plugin for CameraPlugin {
   fn build(&self, app: &mut App) {
     app
       .add_systems(Startup, startup)
-      .add_systems(Update, movement)
-      .add_systems(Update, zoom)
-      .add_systems(Update, right_click_movement);
+      .add_systems(Update, keyboard_movement)
+      .add_systems(Update, scroll_zoom)
+      .add_systems(Update, middle_click_movement);
   }
 }
 
@@ -42,7 +42,7 @@ fn startup(mut commands: Commands) {
   commands.spawn(Camera2dBundle::default());
 }
 
-fn movement(
+fn keyboard_movement(
   time: Res<Time>,
   keyboard_input: Res<Input<KeyCode>>,
   mut query: Query<&mut Transform, With<Camera>>,
@@ -72,7 +72,7 @@ fn movement(
   }
 }
 
-fn zoom(
+fn scroll_zoom(
   mut scroll: EventReader<MouseWheel>,
   mut query: Query<&mut OrthographicProjection, With<Camera>>,
 ) {
@@ -88,7 +88,7 @@ fn zoom(
   }
 }
 
-fn right_click_movement(
+fn middle_click_movement(
   mut mouse_motion_events: EventReader<MouseMotion>,
   input: Res<Input<MouseButton>>,
   mut query: Query<&mut Transform, With<Camera>>,
