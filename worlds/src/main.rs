@@ -9,8 +9,8 @@ use std::{
 struct TiledMap {
   width: u32,
   height: u32,
-  tilewidth: u32,
-  tileheight: u32,
+  tilewidth: f32,
+  tileheight: f32,
   layers: Vec<TiledLayer>,
 }
 
@@ -22,8 +22,8 @@ struct TiledLayer {
 
 #[derive(Deserialize)]
 struct TiledTileSet {
-  tilewidth: u32,
-  tileheight: u32,
+  tilewidth: f32,
+  tileheight: f32,
   image: String,
 }
 
@@ -31,8 +31,8 @@ struct TiledTileSet {
 struct World {
   size_x: u32,
   size_y: u32,
-  grid_x: u32,
-  grid_y: u32,
+  grid_x: f32,
+  grid_y: f32,
   tile_sets: HashMap<String, TileSet>,
   layers: HashMap<String, Vec<Vec<u32>>>,
 }
@@ -40,8 +40,8 @@ struct World {
 #[derive(Serialize)]
 struct TileSet {
   source: String,
-  size_x: u32,
-  size_y: u32,
+  size_x: f32,
+  size_y: f32,
 }
 
 fn main() {

@@ -26,7 +26,23 @@ use bevy::{
   render::camera::Camera,
 };
 
-pub fn movement(
+pub struct CameraPlugin;
+
+impl Plugin for CameraPlugin {
+  fn build(&self, app: &mut App) {
+    app
+      .add_systems(Startup, startup)
+      .add_systems(Update, movement)
+      .add_systems(Update, zoom)
+      .add_systems(Update, right_click_movement);
+  }
+}
+
+fn startup(mut commands: Commands) {
+  commands.spawn(Camera2dBundle::default());
+}
+
+fn movement(
   time: Res<Time>,
   keyboard_input: Res<Input<KeyCode>>,
   mut query: Query<&mut Transform, With<Camera>>,
@@ -56,7 +72,7 @@ pub fn movement(
   }
 }
 
-pub fn zoom(
+fn zoom(
   mut scroll: EventReader<MouseWheel>,
   mut query: Query<&mut OrthographicProjection, With<Camera>>,
 ) {
@@ -72,13 +88,13 @@ pub fn zoom(
   }
 }
 
-pub fn right_click_movement(
+fn right_click_movement(
   mut mouse_motion_events: EventReader<MouseMotion>,
   input: Res<Input<MouseButton>>,
   mut query: Query<&mut Transform, With<Camera>>,
 ) {
   let mut delta = Vec2::ZERO;
-  if input.pressed(MouseButton::Right) {
+  if input.pressed(MouseButton::Middle) {
     for event in mouse_motion_events.iter() {
       delta -= event.delta;
     }
