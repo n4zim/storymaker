@@ -28,24 +28,24 @@ struct TiledTileSet {
 }
 
 #[derive(Serialize)]
-struct World {
+struct WorldConfig {
   size_x: u32,
   size_y: u32,
   grid_x: f32,
   grid_y: f32,
-  tile_sets: HashMap<String, TileSet>,
-  layers: Vec<Layer>,
+  tile_sets: HashMap<String, WorldConfigTileSet>,
+  layers: Vec<WorldConfigLayer>,
 }
 
 #[derive(Serialize)]
-struct TileSet {
+struct WorldConfigTileSet {
   source: String,
   size_x: f32,
   size_y: f32,
 }
 
 #[derive(Serialize)]
-struct Layer {
+struct WorldConfigLayer {
   name: String,
   tiles: Vec<Vec<u32>>,
 }
@@ -61,7 +61,7 @@ fn main() {
 
     let world = serde_json::from_str::<TiledMap>(world).unwrap();
 
-    let mut tile_sets = HashMap::<String, TileSet>::new();
+    let mut tile_sets = HashMap::<String, WorldConfigTileSet>::new();
 
     let terrain =
       &read_to_string(map.path().join("tiles/terrain.json").to_str().unwrap())
@@ -71,7 +71,7 @@ fn main() {
 
     tile_sets.insert(
       "terrain".to_string(),
-      TileSet {
+      WorldConfigTileSet {
         source: Path::new(&terrain.image)
           .components()
           .skip(5)
@@ -83,7 +83,7 @@ fn main() {
       },
     );
 
-    let mut layers = Vec::<Layer>::new();
+    let mut layers = Vec::<WorldConfigLayer>::new();
 
     for layer in &world.layers {
       let mut tiles = Vec::<Vec<u32>>::new();
@@ -96,13 +96,13 @@ fn main() {
         }
         tiles.push(row);
       }
-      layers.push(Layer {
+      layers.push(WorldConfigLayer {
         name: layer.name.clone(),
         tiles,
       });
     }
 
-    let output = World {
+    let output = WorldConfig {
       size_x: world.width,
       size_y: world.height,
       grid_x: world.tilewidth,

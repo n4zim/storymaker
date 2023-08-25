@@ -55,31 +55,31 @@ struct WorldLayer {
 }
 
 #[derive(serde::Deserialize)]
-struct WorldSource {
+struct WorldConfig {
   size_x: u32,
   size_y: u32,
   grid_x: f32,
   grid_y: f32,
-  tile_sets: HashMap<String, TileSetSource>,
-  layers: Vec<LayerSource>,
+  tile_sets: HashMap<String, WorldConfigTileSet>,
+  layers: Vec<WorldConfigLayer>,
 }
 
 #[derive(serde::Deserialize)]
-struct TileSetSource {
+struct WorldConfigTileSet {
   source: String,
   size_x: f32,
   size_y: f32,
 }
 
 #[derive(serde::Deserialize)]
-struct LayerSource {
+struct WorldConfigLayer {
   name: String,
   tiles: Vec<Vec<u32>>,
 }
 
 impl World {
   fn new(asset_server: Res<AssetServer>, name: &str) -> World {
-    let world = serde_json::from_str::<WorldSource>(
+    let world = serde_json::from_str::<WorldConfig>(
       &read_to_string(format!("assets/worlds/{}.json", name)).unwrap(),
     )
     .unwrap();
