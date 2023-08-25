@@ -26,9 +26,6 @@ mod camera;
 fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
   commands.spawn(Camera2dBundle::default());
 
-  let texture_handle: Handle<Image> = asset_server
-    .load("island1/sprites/GustavoVituri/Isometric_MedievalFantasy_Tiles.png");
-
   let map: serde_json::Value = serde_json::from_str(
     &fs::read_to_string("assets/island1/map/world.json").unwrap(),
   )
@@ -39,63 +36,87 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     y: map.get("height").unwrap().as_u64().unwrap() as u32,
   };
 
-  for layer in map.get("layers").unwrap().as_array().unwrap() {
-    let name = layer.get("name").unwrap().as_str().unwrap();
-    let data = layer.get("data").unwrap().as_array().unwrap();
-    for (i, tile) in data.iter().enumerate() {
-      let y = i % map_size.x as usize;
-      let x = i / map_size.x as usize;
-      println!("{} - {} - {}:{}", name, tile, x, y);
-    }
-  }
-
-  let mut tile_storage = TileStorage::empty(map_size);
-  let tilemap_entity = commands.spawn_empty().id();
-  let tilemap_id = TilemapId(tilemap_entity);
-
-  commands.entity(tilemap_id.0).with_children(|parent| {
-    for y in 0..map_size.y {
-      for x in 0..map_size.x {
-        let tile_pos = TilePos { x, y };
-        let tile_entity = parent
-          .spawn(TileBundle {
-            position: tile_pos,
-            tilemap_id,
-            texture_index: TileTextureIndex(1),
-            ..Default::default()
-          })
-          .id();
-        tile_storage.set(&tile_pos, tile_entity);
-      }
-    }
-  });
-
-  let tile_size = TilemapTileSize { x: 16.0, y: 16.0 };
-
-  let grid_size = TilemapTileSize {
+  let grid_size = TilemapGridSize {
     x: map.get("tilewidth").unwrap().as_u64().unwrap() as f32,
     y: map.get("tileheight").unwrap().as_u64().unwrap() as f32,
-  }
-  .into();
+  };
+
+  let terrain: serde_json::Value = serde_json::from_str(
+    &fs::read_to_string("assets/island1/map/tiles/terrain1.json").unwrap(),
+  )
+  .unwrap();
+
+  let tile_size = TilemapTileSize {
+    x: terrain.get("tilewidth").unwrap().as_u64().unwrap() as f32,
+    y: terrain.get("tileheight").unwrap().as_u64().unwrap() as f32,
+  };
+
+  let texture: Handle<Image> = asset_server
+    .load("island1/sprites/GustavoVituri/Isometric_MedievalFantasy_Tiles.png");
+  let texture = TilemapTexture::Single(texture);
 
   let map_type = TilemapType::Isometric(IsoCoordSystem::Diamond);
 
-  commands.entity(tilemap_entity).insert(TilemapBundle {
-    grid_size,
-    size: map_size,
-    storage: tile_storage,
-    texture: TilemapTexture::Single(texture_handle),
-    tile_size,
-    map_type,
-    transform: get_tilemap_center_transform(
-      &map_size, &grid_size, &map_type, 0.0,
-    ),
-    ..Default::default()
-  });
+  for (layer_index, layer) in map
+    .get("layers")
+    .unwrap()
+    .as_array()
+    .unwrap()
+    .iter()
+    .enumerate()
+  {
+    let tiles = layer.get("data").unwrap().as_array().unwrap();
+
+    let mut storage = TileStorage::empty(map_size);
+    let layer_entity = commands.spawn_empty().id();
+
+    for x in 0..map_size.x {
+      for y in 0..map_size.y {
+        let tile_id = tiles[(x + (map_size.y - y - 1) * map_size.x) as usize]
+          .as_u64()
+          .unwrap() as u32;
+        if tile_id == 0 {
+          continue;
+        }
+        let tile_pos = TilePos { x, y };
+        storage.set(
+          &tile_pos,
+          commands
+            .spawn(TileBundle {
+              position: tile_pos,
+              tilemap_id: TilemapId(layer_entity),
+              texture_index: TileTextureIndex(tile_id - 1),
+              ..Default::default()
+            })
+            .id(),
+        );
+      }
+    }
+
+    commands.entity(layer_entity).insert(TilemapBundle {
+      size: map_size,
+      grid_size,
+      tile_size,
+      texture: texture.clone(),
+      map_type,
+      storage,
+      transform: get_tilemap_center_transform(
+        &map_size,
+        &grid_size,
+        &map_type,
+        layer_index as f32,
+      ),
+      ..Default::default()
+    });
+  }
 }
 
 fn main() {
   App::new()
+    .insert_resource(TilemapRenderSettings {
+      render_chunk_size: UVec2::new(3, 1),
+      y_sort: true,
+    })
     .add_plugins(
       DefaultPlugins
         .set(WindowPlugin {
