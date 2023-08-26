@@ -40,7 +40,7 @@ fn init(mut commands: Commands, asset_server: Res<AssetServer>) {
   //commands.insert_resource(world);
 }
 
-#[derive(Resource)]
+//#[derive(Resource)]
 pub struct World {
   size: TilemapSize,
   grid: TilemapGridSize,

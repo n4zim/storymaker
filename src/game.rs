@@ -18,25 +18,41 @@
 
 use bevy::prelude::*;
 
-mod camera;
-mod game;
-mod world;
+pub struct GamePlugin;
 
-fn main() {
-  App::new()
-    .add_plugins(
-      DefaultPlugins
-        .set(WindowPlugin {
-          primary_window: Some(Window {
-            title: String::from("StoryMaker"),
-            ..Default::default()
-          }),
-          ..default()
-        })
-        .set(ImagePlugin::default_nearest()),
-    )
-    .add_plugins(game::GamePlugin)
-    .add_plugins(world::WorldPlugin)
-    .add_plugins(camera::CameraPlugin)
-    .run();
+impl Plugin for GamePlugin {
+  fn build(&self, app: &mut App) {
+    app.add_systems(Update, clock);
+  }
+}
+
+#[derive(Default, Debug)]
+enum ClockSpeed {
+  Paused,
+  #[default]
+  OneMinute,
+  OneHour,
+  OneDay,
+}
+
+#[derive(Resource, Default)]
+struct ClockState {
+  speed: ClockSpeed,
+  previous_speed: ClockSpeed,
+}
+
+fn clock(state: Res<ClockState>, time: Res<Time>) {
+  println!("{:?}", state.speed);
+}
+
+fn speed_commands(
+  mut state: ResMut<ClockState>,
+  keyboard_input: Res<Input<KeyCode>>,
+) {
+  if keyboard_input.just_pressed(KeyCode::Space) {
+    state.speed = match state.speed {
+      ClockSpeed::Paused => state.previous_speed,
+      _ => ClockSpeed::Paused,
+    }
+  }
 }
