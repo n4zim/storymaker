@@ -17,32 +17,25 @@
  */
 
 use bevy::prelude::*;
-use bevy_ecs_tilemap::TilemapPlugin;
+use bevy_ecs_tilemap::prelude::TilemapTexture;
 
-mod actors;
-mod camera;
-mod game;
-mod ui;
-mod world;
+pub struct ActorsPlugin;
 
-fn main() {
-  App::new()
-    .add_plugins((
-      DefaultPlugins
-        .set(WindowPlugin {
-          primary_window: Some(Window {
-            title: String::from("StoryMaker"),
-            ..Default::default()
-          }),
-          ..default()
-        })
-        .set(ImagePlugin::default_nearest()),
-      game::GamePlugin,
-      ui::UIPlugin,
-      TilemapPlugin,
-      world::WorldPlugin,
-      camera::CameraPlugin,
-      actors::ActorsPlugin,
-    ))
-    .run();
+impl Plugin for ActorsPlugin {
+  fn build(&self, app: &mut App) {
+    app.add_systems(Startup, init);
+  }
+}
+
+fn init(asset_server: Res<AssetServer>, mut commands: Commands) {
+  let texture = TilemapTexture::Single(
+    asset_server
+      .load("sprites/AlexDreamer/Small-8-Direction-Characters_by_AxulArt.png"),
+  );
+}
+
+#[derive(Component)]
+pub struct Actor {
+  name: String,
+  position: Vec2,
 }

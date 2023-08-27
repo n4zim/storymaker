@@ -29,7 +29,6 @@ impl Plugin for WorldPlugin {
         render_chunk_size: UVec2::new(3, 1),
         y_sort: true,
       })
-      .add_plugins(TilemapPlugin)
       .add_systems(Startup, init);
   }
 }
@@ -126,7 +125,7 @@ impl World {
   fn render(&self, commands: &mut Commands) {
     let map_type = TilemapType::Isometric(IsoCoordSystem::Diamond);
     for (layer_index, tiles) in self.layers.iter().enumerate() {
-      println!("Rendering layer {}", tiles.name);
+      //println!("Rendering layer {}", tiles.name);
 
       let mut storage = TileStorage::empty(self.size);
       let layer_entity = commands.spawn_empty().id();

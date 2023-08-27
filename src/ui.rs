@@ -16,20 +16,19 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::game::GameTime;
 use bevy::prelude::*;
 use bevy_egui::{
   egui::{self, Align2, FontId, RichText, Vec2},
   EguiContexts, EguiPlugin,
 };
 
-use crate::game::GameTime;
-
 pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
   fn build(&self, app: &mut App) {
     app
-      .init_resource::<State>()
+      .init_resource::<CurrentState>()
       .add_plugins(EguiPlugin)
       .add_systems(Update, interface);
   }
@@ -37,7 +36,7 @@ impl Plugin for UIPlugin {
 
 fn interface(
   mut contexts: EguiContexts,
-  mut state: ResMut<State>,
+  mut state: ResMut<CurrentState>,
   time: Res<GameTime>,
 ) {
   egui::SidePanel::right("sidebar").default_width(400.0).show(
@@ -60,6 +59,6 @@ fn interface(
 }
 
 #[derive(Default, Resource)]
-struct State {
+struct CurrentState {
   fake: f32,
 }
