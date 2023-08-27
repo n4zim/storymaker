@@ -16,16 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::time::Duration;
-
 use bevy::prelude::*;
-
-const SECONDS_PER_MINUTE: u32 = 60;
-const MINUTES_PER_HOUR: u32 = 60;
-const HOURS_PER_DAY: u32 = 24;
-
-//const SECONDS_PER_HOUR: u32 = MINUTES_PER_HOUR * SECONDS_PER_MINUTE;
-//const SECONDS_PER_DAY: u32 = HOURS_PER_DAY * SECONDS_PER_HOUR;
 
 pub struct GamePlugin;
 
@@ -33,16 +24,25 @@ impl Plugin for GamePlugin {
   fn build(&self, app: &mut App) {
     app
       .insert_resource(GameTime::new())
-      .add_systems(Update, clock)
+      .add_state::<SpeedState>()
+      .add_systems(Update, tick)
       .add_systems(Update, speed_commands);
   }
 }
 
-fn clock(mut game_time: ResMut<GameTime>, time: Res<Time>) {
+fn tick(
+  mut game_time: ResMut<GameTime>,
+  time: Res<Time>,
+  speed: Res<State<SpeedState>>,
+) {
   game_time.timer.tick(time.delta());
   if game_time.timer.finished() {
     if !game_time.timer.paused() {
-      game_time.tick();
+      match speed.get() {
+        SpeedState::OneMinute => game_time.tick_one_second(),
+        SpeedState::OneHour => game_time.tick_one_minute(),
+        SpeedState::OneDay => game_time.tick_one_hour(),
+      }
     }
     println!("{}", game_time.to_string());
   }
@@ -50,6 +50,8 @@ fn clock(mut game_time: ResMut<GameTime>, time: Res<Time>) {
 
 fn speed_commands(
   mut time: ResMut<GameTime>,
+  current_state: Res<State<SpeedState>>,
+  mut next_state: ResMut<NextState<SpeedState>>,
   keyboard_input: Res<Input<KeyCode>>,
 ) {
   if keyboard_input.just_pressed(KeyCode::Space) {
@@ -58,18 +60,23 @@ fn speed_commands(
     } else {
       time.timer.pause();
     }
+    return;
   }
+
+  let current_state = *current_state.get();
 
   if keyboard_input.just_pressed(KeyCode::Key1) {
-    time.set_to_one_minute();
-  }
-
-  if keyboard_input.just_pressed(KeyCode::Key2) {
-    time.set_to_one_hour();
-  }
-
-  if keyboard_input.just_pressed(KeyCode::Key3) {
-    time.set_to_one_day();
+    if current_state != SpeedState::OneMinute {
+      next_state.set(SpeedState::OneMinute);
+    }
+  } else if keyboard_input.just_pressed(KeyCode::Key2) {
+    if current_state != SpeedState::OneHour {
+      next_state.set(SpeedState::OneHour);
+    }
+  } else if keyboard_input.just_pressed(KeyCode::Key3) {
+    if current_state != SpeedState::OneDay {
+      next_state.set(SpeedState::OneDay);
+    }
   }
 }
 
@@ -93,36 +100,37 @@ impl GameTime {
     }
   }
 
-  fn set_to_one_minute(&mut self) {
-    println!("set to one minute");
-    self.timer.set_duration(Duration::from_secs_f32(1.0 / 60.0));
-  }
-
-  fn set_to_one_hour(&mut self) {
-    println!("set to one hour");
-    self
-      .timer
-      .set_duration(Duration::from_secs_f32(1.0 / 60.0 / 60.0));
-  }
-
-  fn set_to_one_day(&mut self) {
-    println!("set to one day");
-    self
-      .timer
-      .set_duration(Duration::from_secs_f32(1.0 / 60.0 * 60.0 * 24.0));
-  }
-
-  fn tick(&mut self) {
-    self.second += 1;
-    if self.second == SECONDS_PER_MINUTE {
+  fn tick_one_second(&mut self) {
+    if self.second == 59 {
       self.second = 0;
       self.minute += 1;
+    } else {
+      self.second += 1;
     }
-    if self.minute == MINUTES_PER_HOUR {
+    self.check_next_minute();
+    self.check_next_hour();
+  }
+
+  fn tick_one_minute(&mut self) {
+    self.minute += 1;
+    self.check_next_minute();
+    self.check_next_hour();
+  }
+
+  fn tick_one_hour(&mut self) {
+    self.hour += 1;
+    self.check_next_hour();
+  }
+
+  fn check_next_minute(&mut self) {
+    if self.minute == 60 {
       self.minute = 0;
       self.hour += 1;
     }
-    if self.hour == HOURS_PER_DAY {
+  }
+
+  fn check_next_hour(&mut self) {
+    if self.hour == 24 {
       self.hour = 0;
       self.day += 1;
     }
@@ -134,4 +142,12 @@ impl GameTime {
       self.day, self.hour, self.minute, self.second,
     )
   }
+}
+
+#[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
+enum SpeedState {
+  #[default]
+  OneMinute,
+  OneHour,
+  OneDay,
 }
