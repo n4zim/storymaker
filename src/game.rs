@@ -79,14 +79,23 @@ fn speed_commands(
   if keyboard_input.just_pressed(KeyCode::Key1) {
     if current_state != SpeedState::OneMinute {
       next_state.set(SpeedState::OneMinute);
+      if time.timer.paused() {
+        time.timer.unpause();
+      }
     }
   } else if keyboard_input.just_pressed(KeyCode::Key2) {
     if current_state != SpeedState::OneHour {
       next_state.set(SpeedState::OneHour);
+      if time.timer.paused() {
+        time.timer.unpause();
+      }
     }
   } else if keyboard_input.just_pressed(KeyCode::Key3) {
     if current_state != SpeedState::OneDay {
       next_state.set(SpeedState::OneDay);
+      if time.timer.paused() {
+        time.timer.unpause();
+      }
     }
   }
 }
