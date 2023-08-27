@@ -23,7 +23,14 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
   fn build(&self, app: &mut App) {
     app
-      .insert_resource(GameTime::new())
+      .insert_resource(GameTime {
+        timer: Timer::from_seconds(1.0 / 60.0, TimerMode::Repeating),
+        day: 1,
+        hour: 0,
+        minute: 0,
+        second: 0,
+      })
+      .add_event::<GameTick>()
       .add_state::<SpeedState>()
       .add_systems(Update, tick)
       .add_systems(Update, speed_commands);
@@ -34,17 +41,21 @@ fn tick(
   mut game_time: ResMut<GameTime>,
   time: Res<Time>,
   speed: Res<State<SpeedState>>,
+  mut events: EventWriter<GameTick>,
 ) {
   game_time.timer.tick(time.delta());
   if game_time.timer.finished() {
     if !game_time.timer.paused() {
-      match speed.get() {
-        SpeedState::OneMinute => game_time.tick_one_second(),
-        SpeedState::OneHour => game_time.tick_one_minute(),
-        SpeedState::OneDay => game_time.tick_one_hour(),
+      let iterations = match speed.get() {
+        SpeedState::OneMinute => 1,
+        SpeedState::OneHour => 60,
+        SpeedState::OneDay => 1440,
+      };
+      for _ in 0..iterations {
+        game_time.tick();
+        events.send(GameTick);
       }
     }
-    println!("{}", game_time.to_string());
   }
 }
 
@@ -80,6 +91,9 @@ fn speed_commands(
   }
 }
 
+#[derive(Event)]
+struct GameTick;
+
 #[derive(Resource)]
 pub struct GameTime {
   timer: Timer,
@@ -90,53 +104,26 @@ pub struct GameTime {
 }
 
 impl GameTime {
-  fn new() -> GameTime {
-    GameTime {
-      timer: Timer::from_seconds(1.0 / 60.0, TimerMode::Repeating),
-      day: 1,
-      hour: 0,
-      minute: 0,
-      second: 0,
-    }
-  }
-
-  fn tick_one_second(&mut self) {
+  fn tick(&mut self) {
     if self.second == 59 {
       self.second = 0;
-      self.minute += 1;
+      if self.minute == 59 {
+        self.minute = 0;
+        if self.hour == 23 {
+          self.hour = 0;
+          self.day += 1;
+        } else {
+          self.hour += 1;
+        }
+      } else {
+        self.minute += 1;
+      }
     } else {
       self.second += 1;
     }
-    self.check_next_minute();
-    self.check_next_hour();
   }
 
-  fn tick_one_minute(&mut self) {
-    self.minute += 1;
-    self.check_next_minute();
-    self.check_next_hour();
-  }
-
-  fn tick_one_hour(&mut self) {
-    self.hour += 1;
-    self.check_next_hour();
-  }
-
-  fn check_next_minute(&mut self) {
-    if self.minute == 60 {
-      self.minute = 0;
-      self.hour += 1;
-    }
-  }
-
-  fn check_next_hour(&mut self) {
-    if self.hour == 24 {
-      self.hour = 0;
-      self.day += 1;
-    }
-  }
-
-  fn to_string(&self) -> String {
+  pub fn to_string(&self) -> String {
     format!(
       "Day {} - {:02}:{:02}:{:02}",
       self.day, self.hour, self.minute, self.second,
