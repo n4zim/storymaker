@@ -20,11 +20,12 @@ use bevy::prelude::*;
 
 mod camera;
 mod game;
+mod ui;
 mod world;
 
 fn main() {
   App::new()
-    .add_plugins(
+    .add_plugins((
       DefaultPlugins
         .set(WindowPlugin {
           primary_window: Some(Window {
@@ -34,9 +35,10 @@ fn main() {
           ..default()
         })
         .set(ImagePlugin::default_nearest()),
-    )
-    .add_plugins(game::GamePlugin)
-    .add_plugins(world::WorldPlugin)
-    .add_plugins(camera::CameraPlugin)
+      game::GamePlugin,
+      ui::UIPlugin,
+      world::WorldPlugin,
+      camera::CameraPlugin,
+    ))
     .run();
 }
