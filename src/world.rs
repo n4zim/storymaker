@@ -34,22 +34,27 @@ impl Plugin for WorldPlugin {
 }
 
 fn init(mut commands: Commands, asset_server: Res<AssetServer>) {
-  let world = World::new(asset_server, "island1");
+  let world = World::new(&asset_server, "island1");
+  //commands.insert_resource();
   world.render(&mut commands);
-  //commands.insert_resource(world);
+
+  let mut state = WorldActors::new(&world.size, &mut commands, &asset_server);
+  //commands.insert_resource();
+  state.insert(&mut commands, TilePos { x: 10, y: 10 });
 }
 
-//#[derive(Resource)]
+#[derive(Resource, Clone)]
 pub struct World {
-  size: TilemapSize,
+  pub size: TilemapSize,
   grid: TilemapGridSize,
   terrain_texture: TilemapTexture,
   terrain_size: TilemapTileSize,
   layers: Vec<WorldLayer>,
 }
 
+#[derive(Clone)]
 struct WorldLayer {
-  name: String,
+  //name: String,
   tiles: Vec<Vec<Option<u32>>>,
 }
 
@@ -77,7 +82,7 @@ struct WorldConfigLayer {
 }
 
 impl World {
-  fn new(asset_server: Res<AssetServer>, name: &str) -> World {
+  fn new(asset_server: &Res<AssetServer>, name: &str) -> World {
     let world = serde_json::from_str::<WorldConfig>(
       &read_to_string(format!("assets/worlds/{}.json", name)).unwrap(),
     )
@@ -95,7 +100,7 @@ impl World {
         grid.push(row_tiles);
       }
       tiles.push(WorldLayer {
-        name: layer.name.clone(),
+        //name: layer.name.clone(),
         tiles: grid,
       });
     }
@@ -168,5 +173,71 @@ impl World {
         ..Default::default()
       });
     }
+  }
+}
+
+#[derive(Resource, Clone)]
+pub struct WorldActors {
+  texture: TilemapTexture,
+  storage: TileStorage,
+  tile_id: TilemapId,
+}
+
+impl WorldActors {
+  fn new(
+    size: &TilemapSize,
+    commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
+  ) -> WorldActors {
+    let texture =
+      TilemapTexture::Single(asset_server.load(
+        "sprites/AlexDreamer/Small-8-Direction-Characters_by_AxulArt.png",
+      ));
+
+    let storage = TileStorage::empty(*size);
+
+    let entity_id = commands.spawn_empty().id();
+
+    let grid_size = TilemapGridSize { x: 16.0, y: 22.0 };
+    let map_type = TilemapType::Isometric(IsoCoordSystem::Diamond);
+    commands.entity(entity_id).insert(TilemapBundle {
+      size: *size,
+      grid_size,
+      map_type,
+      tile_size: TilemapTileSize { x: 16.0, y: 16.0 },
+      storage: storage.clone(),
+      texture: texture.clone(),
+      transform: get_tilemap_center_transform(
+        &size, &grid_size, &map_type, 10.0,
+      ),
+      ..Default::default()
+    });
+
+    WorldActors {
+      texture,
+      storage,
+      tile_id: TilemapId(entity_id),
+    }
+  }
+
+  fn insert(&mut self, commands: &mut Commands, position: TilePos) {
+    self.storage.set(
+      &position,
+      commands
+        .spawn((
+          TileBundle {
+            position,
+            tilemap_id: self.tile_id,
+            texture_index: TileTextureIndex(0),
+            ..Default::default()
+          },
+          AnimatedTile {
+            start: 8,
+            end: 15,
+            speed: 1.0,
+          },
+        ))
+        .id(),
+    );
   }
 }

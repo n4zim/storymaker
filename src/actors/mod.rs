@@ -17,25 +17,26 @@
  */
 
 use bevy::prelude::*;
-use bevy_ecs_tilemap::prelude::TilemapTexture;
+use bevy_ecs_tilemap::prelude::*;
 
 pub struct ActorsPlugin;
 
 impl Plugin for ActorsPlugin {
-  fn build(&self, app: &mut App) {
-    app.add_systems(Startup, init);
-  }
-}
-
-fn init(asset_server: Res<AssetServer>, mut commands: Commands) {
-  let texture = TilemapTexture::Single(
-    asset_server
-      .load("sprites/AlexDreamer/Small-8-Direction-Characters_by_AxulArt.png"),
-  );
+  fn build(&self, app: &mut App) {}
 }
 
 #[derive(Component)]
 pub struct Actor {
-  name: String,
-  position: Vec2,
+  direction: Direction,
+}
+
+enum Direction {
+  Top,
+  TopRight,
+  Right,
+  BottomRight,
+  Bottom,
+  BottomLeft,
+  Left,
+  TopLeft,
 }
