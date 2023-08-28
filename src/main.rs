@@ -17,13 +17,11 @@
  */
 
 use bevy::prelude::*;
-use bevy_ecs_tilemap::TilemapPlugin;
 
-mod actors;
 mod camera;
 mod game;
+mod simulation;
 mod ui;
-mod world;
 
 fn main() {
   App::new()
@@ -39,10 +37,8 @@ fn main() {
         .set(ImagePlugin::default_nearest()),
       game::GamePlugin,
       ui::UIPlugin,
-      TilemapPlugin,
-      world::WorldPlugin,
+      simulation::SimulationPlugin,
       camera::CameraPlugin,
-      actors::ActorsPlugin,
     ))
     .run();
 }

@@ -20,69 +20,19 @@ use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use std::{collections::HashMap, fs::read_to_string};
 
-pub struct WorldPlugin;
-
-impl Plugin for WorldPlugin {
-  fn build(&self, app: &mut App) {
-    app
-      .insert_resource(TilemapRenderSettings {
-        render_chunk_size: UVec2::new(3, 1),
-        y_sort: true,
-      })
-      .add_systems(Startup, init);
-  }
-}
-
-fn init(mut commands: Commands, asset_server: Res<AssetServer>) {
-  let world = World::new(&asset_server, "island1");
-  //commands.insert_resource();
-  world.render(&mut commands);
-
-  let mut state = WorldActors::new(&world.size, &mut commands, &asset_server);
-  //commands.insert_resource();
-  state.insert(&mut commands, TilePos { x: 10, y: 10 });
-}
+use super::actors::spawner::ActorsSpawner;
 
 #[derive(Resource, Clone)]
 pub struct World {
   pub size: TilemapSize,
-  grid: TilemapGridSize,
+  pub grid: TilemapGridSize,
   terrain_texture: TilemapTexture,
   terrain_size: TilemapTileSize,
   layers: Vec<WorldLayer>,
 }
 
-#[derive(Clone)]
-struct WorldLayer {
-  //name: String,
-  tiles: Vec<Vec<Option<u32>>>,
-}
-
-#[derive(serde::Deserialize)]
-struct WorldConfig {
-  size_x: u32,
-  size_y: u32,
-  grid_x: f32,
-  grid_y: f32,
-  tile_sets: HashMap<String, WorldConfigTileSet>,
-  layers: Vec<WorldConfigLayer>,
-}
-
-#[derive(serde::Deserialize)]
-struct WorldConfigTileSet {
-  source: String,
-  size_x: f32,
-  size_y: f32,
-}
-
-#[derive(serde::Deserialize)]
-struct WorldConfigLayer {
-  name: String,
-  tiles: Vec<Vec<u32>>,
-}
-
 impl World {
-  fn new(asset_server: &Res<AssetServer>, name: &str) -> World {
+  pub fn new(asset_server: &Res<AssetServer>, name: &str) -> World {
     let world = serde_json::from_str::<WorldConfig>(
       &read_to_string(format!("assets/worlds/{}.json", name)).unwrap(),
     )
@@ -127,7 +77,7 @@ impl World {
     }
   }
 
-  fn render(&self, commands: &mut Commands) {
+  pub fn render(&self, commands: &mut Commands, spawner: &mut ActorsSpawner) {
     let map_type = TilemapType::Isometric(IsoCoordSystem::Diamond);
     for (layer_index, tiles) in self.layers.iter().enumerate() {
       //println!("Rendering layer {}", tiles.name);
@@ -153,6 +103,9 @@ impl World {
                 })
                 .id(),
             );
+            if tile == &43 {
+              spawner.insert_with_random_gender(commands, position);
+            }
           }
         }
       }
@@ -176,68 +129,31 @@ impl World {
   }
 }
 
-#[derive(Resource, Clone)]
-pub struct WorldActors {
-  texture: TilemapTexture,
-  storage: TileStorage,
-  tile_id: TilemapId,
+#[derive(Clone)]
+struct WorldLayer {
+  //name: String,
+  tiles: Vec<Vec<Option<u32>>>,
 }
 
-impl WorldActors {
-  fn new(
-    size: &TilemapSize,
-    commands: &mut Commands,
-    asset_server: &Res<AssetServer>,
-  ) -> WorldActors {
-    let texture =
-      TilemapTexture::Single(asset_server.load(
-        "sprites/AlexDreamer/Small-8-Direction-Characters_by_AxulArt.png",
-      ));
+#[derive(serde::Deserialize)]
+struct WorldConfig {
+  size_x: u32,
+  size_y: u32,
+  grid_x: f32,
+  grid_y: f32,
+  tile_sets: HashMap<String, WorldConfigTileSet>,
+  layers: Vec<WorldConfigLayer>,
+}
 
-    let storage = TileStorage::empty(*size);
+#[derive(serde::Deserialize)]
+struct WorldConfigTileSet {
+  source: String,
+  size_x: f32,
+  size_y: f32,
+}
 
-    let entity_id = commands.spawn_empty().id();
-
-    let grid_size = TilemapGridSize { x: 16.0, y: 22.0 };
-    let map_type = TilemapType::Isometric(IsoCoordSystem::Diamond);
-    commands.entity(entity_id).insert(TilemapBundle {
-      size: *size,
-      grid_size,
-      map_type,
-      tile_size: TilemapTileSize { x: 16.0, y: 16.0 },
-      storage: storage.clone(),
-      texture: texture.clone(),
-      transform: get_tilemap_center_transform(
-        &size, &grid_size, &map_type, 10.0,
-      ),
-      ..Default::default()
-    });
-
-    WorldActors {
-      texture,
-      storage,
-      tile_id: TilemapId(entity_id),
-    }
-  }
-
-  fn insert(&mut self, commands: &mut Commands, position: TilePos) {
-    self.storage.set(
-      &position,
-      commands
-        .spawn((
-          TileBundle {
-            position,
-            tilemap_id: self.tile_id,
-            texture_index: TileTextureIndex(0),
-            ..Default::default()
-          },
-          AnimatedTile {
-            start: 8,
-            end: 15,
-            speed: 1.0,
-          },
-        ))
-        .id(),
-    );
-  }
+#[derive(serde::Deserialize)]
+struct WorldConfigLayer {
+  //name: String,
+  tiles: Vec<Vec<u32>>,
 }
