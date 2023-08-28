@@ -94,7 +94,7 @@ fn middle_click_movement(
   mut query: Query<&mut Transform, With<Camera>>,
 ) {
   let mut delta = Vec2::ZERO;
-  if input.pressed(MouseButton::Middle) {
+  if input.pressed(MouseButton::Middle) || input.pressed(MouseButton::Right) {
     for event in mouse_motion_events.iter() {
       delta -= event.delta;
     }

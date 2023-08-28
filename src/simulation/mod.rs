@@ -34,11 +34,12 @@ impl Plugin for SimulationPlugin {
         render_chunk_size: UVec2::new(3, 1),
         y_sort: true,
       })
-      .add_systems(Startup, init);
+      .add_systems(Startup, init_system)
+      .add_systems(Update, actors::movement::move_system);
   }
 }
 
-fn init(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn init_system(mut commands: Commands, asset_server: Res<AssetServer>) {
   let world = World::new(&asset_server, "island1");
 
   let mut spawner: ActorsSpawner =

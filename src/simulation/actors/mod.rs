@@ -19,6 +19,7 @@
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::{TilePos, TileTextureIndex};
 
+pub mod movement;
 pub mod spawner;
 
 #[derive(Component)]

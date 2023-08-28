@@ -18,18 +18,4 @@
 
 use bevy::prelude::*;
 
-mod camera;
-mod game;
-mod simulation;
-mod ui;
-
-fn main() {
-  App::new()
-    .add_plugins((
-      game::GamePlugin,
-      simulation::SimulationPlugin,
-      camera::CameraPlugin,
-      ui::UIPlugin,
-    ))
-    .run();
-}
+pub fn move_system() {}

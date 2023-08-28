@@ -23,6 +23,17 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
   fn build(&self, app: &mut App) {
     app
+      .add_plugins(
+        DefaultPlugins
+          .set(WindowPlugin {
+            primary_window: Some(Window {
+              title: String::from("StoryMaker"),
+              ..Default::default()
+            }),
+            ..default()
+          })
+          .set(ImagePlugin::default_nearest()),
+      )
       .insert_resource(GameTime {
         timer: Timer::from_seconds(1.0 / 60.0, TimerMode::Repeating),
         day: 1,

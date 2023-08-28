@@ -16,11 +16,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use super::{Actor, ActorGender};
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use rand::Rng;
-
-use super::{Actor, ActorGender, Direction};
 
 #[derive(Resource)]
 pub struct ActorsSpawner {
@@ -45,11 +44,6 @@ impl ActorsSpawner {
 
     let map_type = TilemapType::Isometric(IsoCoordSystem::Diamond);
 
-    let mut transform =
-      get_tilemap_center_transform(&size, &grid_size, &map_type, 2.0);
-    transform.translation.y += 7.5;
-    transform.translation.x += 0.5;
-
     commands.entity(entity_id).insert(TilemapBundle {
       size,
       grid_size,
@@ -57,7 +51,9 @@ impl ActorsSpawner {
       tile_size: TilemapTileSize { x: 16.0, y: 22.0 },
       storage: storage.clone(),
       texture: texture.clone(),
-      transform,
+      transform: get_tilemap_center_transform(
+        &size, &grid_size, &map_type, 2.0,
+      ),
       ..Default::default()
     });
 
