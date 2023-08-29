@@ -30,7 +30,7 @@ pub fn move_system(
 ) {
   for clock in events.iter() {
     for (mut actor, mut position) in query.iter_mut() {
-      if clock.total % 20 != 0 {
+      if clock.total % 10 != 0 {
         continue;
       }
 

@@ -44,9 +44,9 @@ impl Actor {
 
   pub fn get_texture_index(&self) -> TileTextureIndex {
     TileTextureIndex(
-      8 + self.gender as u32 * 32
-        + self.direction as u32
-        + 8 * self.posture as u32,
+      8 + self.gender.to_u32() * 32
+        + self.direction.to_u32()
+        + 8 * self.posture.to_u32(),
     )
   }
 
@@ -66,39 +66,69 @@ impl Actor {
   }
 }
 
-#[derive(Clone, Copy)]
 pub enum ActorGender {
-  Male = 2,
-  Female = 1,
-  Other = 0,
+  Male,
+  Female,
+  Other,
 }
 
 impl ActorGender {
-  pub fn index_to_gender(index: i32) -> Option<ActorGender> {
+  pub fn new_with_index(index: i32) -> Option<Self> {
     match index {
-      2 => Some(ActorGender::Male),
-      1 => Some(ActorGender::Female),
-      0 => Some(ActorGender::Other),
+      2 => Some(Self::Male),
+      1 => Some(Self::Female),
+      0 => Some(Self::Other),
       _ => None,
+    }
+  }
+
+  pub fn to_u32(&self) -> u32 {
+    match self {
+      Self::Male => 2,
+      Self::Female => 1,
+      Self::Other => 0,
     }
   }
 }
 
-#[derive(Clone, Copy)]
 pub enum ActorDirection {
-  Top = 0,
-  TopRight = 1,
-  Right = 2,
-  BottomRight = 3,
-  Bottom = 4,
-  BottomLeft = 5,
-  Left = 6,
-  TopLeft = 7,
+  Top,
+  TopRight,
+  Right,
+  BottomRight,
+  Bottom,
+  BottomLeft,
+  Left,
+  TopLeft,
 }
 
-#[derive(Clone, Copy)]
+impl ActorDirection {
+  pub fn to_u32(&self) -> u32 {
+    match self {
+      ActorDirection::Top => 0,
+      ActorDirection::TopRight => 1,
+      ActorDirection::Right => 2,
+      ActorDirection::BottomRight => 3,
+      ActorDirection::Bottom => 4,
+      ActorDirection::BottomLeft => 5,
+      ActorDirection::Left => 6,
+      ActorDirection::TopLeft => 7,
+    }
+  }
+}
+
 pub enum ActorPosture {
-  Top = 0,
-  Idle = 1,
-  Bottom = 2,
+  Top,
+  Idle,
+  Bottom,
+}
+
+impl ActorPosture {
+  pub fn to_u32(&self) -> u32 {
+    match self {
+      ActorPosture::Top => 0,
+      ActorPosture::Idle => 1,
+      ActorPosture::Bottom => 2,
+    }
+  }
 }

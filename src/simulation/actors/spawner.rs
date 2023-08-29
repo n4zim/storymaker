@@ -69,7 +69,7 @@ impl ActorsSpawner {
     position: TilePos,
   ) {
     let index = rand::thread_rng().gen_range(0..=2);
-    if let Some(gender) = ActorGender::index_to_gender(index) {
+    if let Some(gender) = ActorGender::new_with_index(index) {
       self.insert(commands, position, gender);
     }
   }

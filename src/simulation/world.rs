@@ -21,7 +21,7 @@ use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use std::{collections::HashMap, fs::read_to_string};
 
-#[derive(Resource, Clone)]
+#[derive(Resource)]
 pub struct World {
   pub size: TilemapSize,
   pub grid: TilemapGridSize,
@@ -128,7 +128,6 @@ impl World {
   }
 }
 
-#[derive(Clone)]
 struct WorldLayer {
   //name: String,
   tiles: Vec<Vec<Option<u32>>>,
