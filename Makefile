@@ -2,5 +2,5 @@
 run:
 	cargo run --release
 
-gen_worlds:
+generate_worlds:
 	cd worlds && cargo run

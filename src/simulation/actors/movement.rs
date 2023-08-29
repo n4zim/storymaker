@@ -20,16 +20,16 @@ use super::super::world::WorldMap;
 use super::Actor;
 use crate::game::GameTick;
 use bevy::prelude::*;
-use bevy_ecs_tilemap::tiles::TilePos;
+use bevy_ecs_tilemap::tiles::{TileColor, TilePos};
 use rand::Rng;
 
 pub fn random_system(
   mut events: EventReader<GameTick>,
-  mut query: Query<(&mut Actor, &mut TilePos)>,
+  mut query: Query<(&mut Actor, &mut TileColor, &mut TilePos)>,
   world: Res<WorldMap>,
 ) {
   for clock in events.iter() {
-    for (mut actor, mut position) in query.iter_mut() {
+    for (mut actor, mut color, mut position) in query.iter_mut() {
       if clock.total % 10 != 0 {
         continue;
       }
@@ -64,6 +64,17 @@ pub fn random_system(
           position.y -= 1;
         }
         leave = false;
+      }
+
+      if world.is_walkable(&position) {
+        color.0 = Color::Rgba {
+          red: 1.0,
+          green: 1.0,
+          blue: 1.0,
+          alpha: 1.0,
+        };
+      } else {
+        color.0 = Color::RED;
       }
 
       if leave {

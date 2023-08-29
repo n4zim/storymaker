@@ -52,7 +52,7 @@ impl ActorsSpawner {
       storage: storage.clone(),
       texture: texture.clone(),
       transform: get_tilemap_center_transform(
-        &size, &grid_size, &map_type, 2.0,
+        &size, &grid_size, &map_type, 5.0,
       ),
       ..Default::default()
     });
