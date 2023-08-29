@@ -25,21 +25,44 @@ pub mod spawner;
 #[derive(Component)]
 pub struct Actor {
   gender: ActorGender,
-  pub direction: Direction,
+  pub direction: ActorDirection,
   pub destination: Option<TilePos>,
+  pub posture: ActorPosture,
+  pub posture_reverse: bool,
 }
 
 impl Actor {
   pub fn new(gender: ActorGender) -> Actor {
     Actor {
       gender,
-      direction: Direction::Bottom,
+      direction: ActorDirection::Bottom,
+      posture: ActorPosture::Idle,
+      posture_reverse: false,
       destination: None,
     }
   }
 
   pub fn get_texture_index(&self) -> TileTextureIndex {
-    TileTextureIndex(8 + self.gender as u32 * 32 + self.direction as u32 + 8)
+    TileTextureIndex(
+      8 + self.gender as u32 * 32
+        + self.direction as u32
+        + 8 * self.posture as u32,
+    )
+  }
+
+  pub fn set_next_posture(&mut self) {
+    self.posture = match self.posture {
+      ActorPosture::Top => ActorPosture::Idle,
+      ActorPosture::Idle => {
+        self.posture_reverse = !self.posture_reverse;
+        if self.posture_reverse {
+          ActorPosture::Top
+        } else {
+          ActorPosture::Bottom
+        }
+      }
+      ActorPosture::Bottom => ActorPosture::Idle,
+    };
   }
 }
 
@@ -62,7 +85,7 @@ impl ActorGender {
 }
 
 #[derive(Clone, Copy)]
-pub enum Direction {
+pub enum ActorDirection {
   Top = 0,
   TopRight = 1,
   Right = 2,
@@ -71,4 +94,11 @@ pub enum Direction {
   BottomLeft = 5,
   Left = 6,
   TopLeft = 7,
+}
+
+#[derive(Clone, Copy)]
+pub enum ActorPosture {
+  Top = 0,
+  Idle = 1,
+  Bottom = 2,
 }

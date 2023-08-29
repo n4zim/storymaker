@@ -17,7 +17,7 @@
  */
 
 use super::super::world::World;
-use super::{Actor, Direction};
+use super::{Actor, ActorDirection};
 use crate::game::GameTick;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::{TilePos, TileTextureIndex};
@@ -30,9 +30,10 @@ pub fn move_system(
 ) {
   for clock in events.iter() {
     for (mut actor, mut position) in query.iter_mut() {
-      if clock.total % 10 != 0 {
+      if clock.total % 20 != 0 {
         continue;
       }
+
       if actor.destination.is_none() {
         let mut rng: rand::rngs::ThreadRng = rand::thread_rng();
         actor.destination = Some(TilePos {
@@ -40,8 +41,12 @@ pub fn move_system(
           y: rng.gen_range(10..world.size.y - 10),
         });
       }
+
+      actor.set_next_posture();
+
       let destination = actor.destination.unwrap();
       let mut leave = false;
+
       if position.x != destination.x {
         if position.x < destination.x {
           position.x += 1;
@@ -51,6 +56,7 @@ pub fn move_system(
       } else {
         leave = true;
       }
+
       if position.y != destination.y {
         if position.y < destination.y {
           position.y += 1;
@@ -59,6 +65,7 @@ pub fn move_system(
         }
         leave = false;
       }
+
       if leave {
         actor.destination = None;
       }
@@ -70,27 +77,26 @@ pub fn directions_system(mut query: Query<(&mut Actor, &mut TilePos)>) {
   for (mut actor, position) in query.iter_mut() {
     if actor.destination.is_some() {
       let destination = actor.destination.unwrap();
-      // Isometric view, diamond shape, 0 is on the left
       actor.direction = if position.x < destination.x {
         if position.y < destination.y {
-          Direction::BottomRight
+          ActorDirection::BottomRight
         } else if position.y > destination.y {
-          Direction::Bottom
+          ActorDirection::Bottom
         } else {
-          Direction::Right
+          ActorDirection::Right
         }
       } else if position.x > destination.x {
         if position.y < destination.y {
-          Direction::Top
+          ActorDirection::Top
         } else if position.y > destination.y {
-          Direction::TopLeft
+          ActorDirection::TopLeft
         } else {
-          Direction::Left
+          ActorDirection::Left
         }
       } else if position.y < destination.y {
-        Direction::TopRight
+        ActorDirection::TopRight
       } else {
-        Direction::BottomLeft
+        ActorDirection::BottomLeft
       };
     }
   }
