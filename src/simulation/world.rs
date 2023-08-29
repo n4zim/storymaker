@@ -22,22 +22,22 @@ use bevy_ecs_tilemap::prelude::*;
 use std::{collections::HashMap, fs::read_to_string};
 
 #[derive(Resource)]
-pub struct World {
+pub struct WorldMap {
   pub size: TilemapSize,
   pub grid: TilemapGridSize,
   terrain_texture: TilemapTexture,
   terrain_size: TilemapTileSize,
-  layers: Vec<WorldLayer>,
+  layers: Vec<WorldMapLayer>,
 }
 
-impl World {
-  pub fn new(asset_server: &Res<AssetServer>, name: &str) -> World {
+impl WorldMap {
+  pub fn new(asset_server: &Res<AssetServer>, name: &str) -> WorldMap {
     let world = serde_json::from_str::<WorldConfig>(
       &read_to_string(format!("assets/worlds/{}.json", name)).unwrap(),
     )
     .unwrap();
 
-    let mut tiles = Vec::<WorldLayer>::new();
+    let mut tiles = Vec::<WorldMapLayer>::new();
 
     for layer in world.layers.iter() {
       let mut grid = Vec::new();
@@ -48,7 +48,7 @@ impl World {
         }
         grid.push(row_tiles);
       }
-      tiles.push(WorldLayer {
+      tiles.push(WorldMapLayer {
         //name: layer.name.clone(),
         tiles: grid,
       });
@@ -56,7 +56,7 @@ impl World {
 
     let terrain = world.tile_sets.get("terrain").unwrap();
 
-    World {
+    WorldMap {
       size: TilemapSize {
         x: world.size_x,
         y: world.size_y,
@@ -128,7 +128,7 @@ impl World {
   }
 }
 
-struct WorldLayer {
+struct WorldMapLayer {
   //name: String,
   tiles: Vec<Vec<Option<u32>>>,
 }

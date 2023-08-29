@@ -16,17 +16,17 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use super::super::world::World;
-use super::{Actor, ActorDirection};
+use super::super::world::WorldMap;
+use super::Actor;
 use crate::game::GameTick;
 use bevy::prelude::*;
-use bevy_ecs_tilemap::tiles::{TilePos, TileTextureIndex};
+use bevy_ecs_tilemap::tiles::TilePos;
 use rand::Rng;
 
-pub fn move_system(
+pub fn random_system(
   mut events: EventReader<GameTick>,
   mut query: Query<(&mut Actor, &mut TilePos)>,
-  world: Res<World>,
+  world: Res<WorldMap>,
 ) {
   for clock in events.iter() {
     for (mut actor, mut position) in query.iter_mut() {
@@ -70,44 +70,5 @@ pub fn move_system(
         actor.destination = None;
       }
     }
-  }
-}
-
-pub fn directions_system(mut query: Query<(&mut Actor, &mut TilePos)>) {
-  for (mut actor, position) in query.iter_mut() {
-    if actor.destination.is_some() {
-      let destination = actor.destination.unwrap();
-      actor.direction = if position.x < destination.x {
-        if position.y < destination.y {
-          ActorDirection::BottomRight
-        } else if position.y > destination.y {
-          ActorDirection::Bottom
-        } else {
-          ActorDirection::Right
-        }
-      } else if position.x > destination.x {
-        if position.y < destination.y {
-          ActorDirection::Top
-        } else if position.y > destination.y {
-          ActorDirection::TopLeft
-        } else {
-          ActorDirection::Left
-        }
-      } else if position.y < destination.y {
-        ActorDirection::TopRight
-      } else {
-        ActorDirection::BottomLeft
-      };
-    }
-  }
-}
-
-pub fn animations_system(
-  mut query: Query<(&mut Actor, &mut TileTextureIndex)>,
-) {
-  for (actor, mut texture_index) in query.iter_mut() {
-    texture_index
-      .set(Box::new(actor.get_texture_index()))
-      .unwrap()
   }
 }

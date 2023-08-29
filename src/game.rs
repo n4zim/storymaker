@@ -50,9 +50,9 @@ fn tick(
   speed: Res<State<SpeedState>>,
   mut events: EventWriter<GameTick>,
 ) {
-  game_time.timer.tick(time.delta());
-  if game_time.timer.finished() {
-    if !game_time.timer.paused() {
+  game_time.0.tick(time.delta());
+  if game_time.0.finished() {
+    if !game_time.0.paused() {
       let iterations = match speed.get() {
         SpeedState::OneMinute => 1,
         SpeedState::OneHour => 60,
@@ -79,10 +79,10 @@ fn speed_commands(
   keyboard_input: Res<Input<KeyCode>>,
 ) {
   if keyboard_input.just_pressed(KeyCode::Space) {
-    if time.timer.paused() {
-      time.timer.unpause();
+    if time.0.paused() {
+      time.0.unpause();
     } else {
-      time.timer.pause();
+      time.0.pause();
     }
     return;
   }
@@ -92,22 +92,22 @@ fn speed_commands(
   if keyboard_input.just_pressed(KeyCode::Key1) {
     if current_state != SpeedState::OneMinute {
       next_state.set(SpeedState::OneMinute);
-      if time.timer.paused() {
-        time.timer.unpause();
+      if time.0.paused() {
+        time.0.unpause();
       }
     }
   } else if keyboard_input.just_pressed(KeyCode::Key2) {
     if current_state != SpeedState::OneHour {
       next_state.set(SpeedState::OneHour);
-      if time.timer.paused() {
-        time.timer.unpause();
+      if time.0.paused() {
+        time.0.unpause();
       }
     }
   } else if keyboard_input.just_pressed(KeyCode::Key3) {
     if current_state != SpeedState::OneDay {
       next_state.set(SpeedState::OneDay);
-      if time.timer.paused() {
-        time.timer.unpause();
+      if time.0.paused() {
+        time.0.unpause();
       }
     }
   }
@@ -164,15 +164,11 @@ impl Default for GameClock {
 }
 
 #[derive(Resource)]
-struct GameTime {
-  timer: Timer,
-}
+struct GameTime(Timer);
 
 impl Default for GameTime {
   fn default() -> Self {
-    GameTime {
-      timer: Timer::from_seconds(1.0 / 60.0, TimerMode::Repeating),
-    }
+    Self(Timer::from_seconds(1.0 / 60.0, TimerMode::Repeating))
   }
 }
 

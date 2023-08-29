@@ -17,7 +17,7 @@
  */
 
 use self::actors::spawner::ActorsSpawner;
-use self::world::World;
+use self::world::WorldMap;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 
@@ -38,16 +38,16 @@ impl Plugin for SimulationPlugin {
       .add_systems(
         Update,
         (
-          actors::movement::move_system,
-          actors::movement::directions_system,
-          actors::movement::animations_system,
+          actors::animations::directions_system,
+          actors::animations::texture_system,
+          actors::movement::random_system,
         ),
       );
   }
 }
 
 fn init_system(mut commands: Commands, asset_server: Res<AssetServer>) {
-  let world = World::new(&asset_server, "island1");
+  let world = WorldMap::new(&asset_server, "island1");
 
   let mut spawner: ActorsSpawner =
     ActorsSpawner::new(world.size, world.grid, &mut commands, &asset_server);
