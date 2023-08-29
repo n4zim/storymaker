@@ -25,14 +25,14 @@ pub mod spawner;
 #[derive(Component)]
 pub struct Actor {
   gender: ActorGender,
-  pub direction: ActorDirection,
-  pub destination: Option<TilePos>,
-  pub posture: ActorPosture,
-  pub posture_reverse: bool,
+  direction: ActorDirection,
+  posture: ActorPosture,
+  posture_reverse: bool,
+  destination: Option<TilePos>,
 }
 
 impl Actor {
-  pub fn new(gender: ActorGender) -> Actor {
+  fn new(gender: ActorGender) -> Actor {
     Actor {
       gender,
       direction: ActorDirection::Bottom,
@@ -42,7 +42,7 @@ impl Actor {
     }
   }
 
-  pub fn get_texture_index(&self) -> TileTextureIndex {
+  fn get_texture_index(&self) -> TileTextureIndex {
     TileTextureIndex(
       8 + self.gender.to_u32() * 32
         + self.direction.to_u32()
@@ -50,18 +50,18 @@ impl Actor {
     )
   }
 
-  pub fn set_next_posture(&mut self) {
+  fn set_next_posture(&mut self) {
     self.posture = match self.posture {
-      ActorPosture::Top => ActorPosture::Idle,
+      ActorPosture::LeftFoot => ActorPosture::Idle,
       ActorPosture::Idle => {
         self.posture_reverse = !self.posture_reverse;
         if self.posture_reverse {
-          ActorPosture::Top
+          ActorPosture::LeftFoot
         } else {
-          ActorPosture::Bottom
+          ActorPosture::RightFoot
         }
       }
-      ActorPosture::Bottom => ActorPosture::Idle,
+      ActorPosture::RightFoot => ActorPosture::Idle,
     };
   }
 }
@@ -73,7 +73,7 @@ pub enum ActorGender {
 }
 
 impl ActorGender {
-  pub fn new_with_index(index: i32) -> Option<Self> {
+  fn new_with_index(index: i32) -> Option<Self> {
     match index {
       2 => Some(Self::Male),
       1 => Some(Self::Female),
@@ -82,7 +82,7 @@ impl ActorGender {
     }
   }
 
-  pub fn to_u32(&self) -> u32 {
+  fn to_u32(&self) -> u32 {
     match self {
       Self::Male => 2,
       Self::Female => 1,
@@ -103,7 +103,7 @@ pub enum ActorDirection {
 }
 
 impl ActorDirection {
-  pub fn to_u32(&self) -> u32 {
+  fn to_u32(&self) -> u32 {
     match self {
       ActorDirection::Top => 0,
       ActorDirection::TopRight => 1,
@@ -118,17 +118,17 @@ impl ActorDirection {
 }
 
 pub enum ActorPosture {
-  Top,
+  LeftFoot,
   Idle,
-  Bottom,
+  RightFoot,
 }
 
 impl ActorPosture {
-  pub fn to_u32(&self) -> u32 {
+  fn to_u32(&self) -> u32 {
     match self {
-      ActorPosture::Top => 0,
+      ActorPosture::LeftFoot => 0,
       ActorPosture::Idle => 1,
-      ActorPosture::Bottom => 2,
+      ActorPosture::RightFoot => 2,
     }
   }
 }

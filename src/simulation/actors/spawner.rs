@@ -74,7 +74,7 @@ impl ActorsSpawner {
     }
   }
 
-  pub fn insert(
+  fn insert(
     &mut self,
     commands: &mut Commands,
     position: TilePos,
