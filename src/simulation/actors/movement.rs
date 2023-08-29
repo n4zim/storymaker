@@ -16,6 +16,92 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use super::super::world::World;
+use super::{Actor, Direction};
+use crate::game::GameTick;
 use bevy::prelude::*;
+use bevy_ecs_tilemap::tiles::{TilePos, TileTextureIndex};
+use rand::Rng;
 
-pub fn move_system() {}
+pub fn move_system(
+  mut events: EventReader<GameTick>,
+  mut query: Query<(&mut Actor, &mut TilePos)>,
+  world: Res<World>,
+) {
+  for clock in events.iter() {
+    for (mut actor, mut position) in query.iter_mut() {
+      if clock.total % 10 != 0 {
+        continue;
+      }
+      if actor.destination.is_none() {
+        let mut rng: rand::rngs::ThreadRng = rand::thread_rng();
+        actor.destination = Some(TilePos {
+          x: rng.gen_range(10..world.size.x - 10),
+          y: rng.gen_range(10..world.size.y - 10),
+        });
+      }
+      let destination = actor.destination.unwrap();
+      let mut leave = false;
+      if position.x != destination.x {
+        if position.x < destination.x {
+          position.x += 1;
+        } else {
+          position.x -= 1;
+        }
+      } else {
+        leave = true;
+      }
+      if position.y != destination.y {
+        if position.y < destination.y {
+          position.y += 1;
+        } else {
+          position.y -= 1;
+        }
+        leave = false;
+      }
+      if leave {
+        actor.destination = None;
+      }
+    }
+  }
+}
+
+pub fn directions_system(mut query: Query<(&mut Actor, &mut TilePos)>) {
+  for (mut actor, position) in query.iter_mut() {
+    if actor.destination.is_some() {
+      let destination = actor.destination.unwrap();
+      // Isometric view, diamond shape, 0 is on the left
+      actor.direction = if position.x < destination.x {
+        if position.y < destination.y {
+          Direction::BottomRight
+        } else if position.y > destination.y {
+          Direction::Bottom
+        } else {
+          Direction::Right
+        }
+      } else if position.x > destination.x {
+        if position.y < destination.y {
+          Direction::Top
+        } else if position.y > destination.y {
+          Direction::TopLeft
+        } else {
+          Direction::Left
+        }
+      } else if position.y < destination.y {
+        Direction::TopRight
+      } else {
+        Direction::BottomLeft
+      };
+    }
+  }
+}
+
+pub fn animations_system(
+  mut query: Query<(&mut Actor, &mut TileTextureIndex)>,
+) {
+  for (actor, mut texture_index) in query.iter_mut() {
+    texture_index
+      .set(Box::new(actor.get_texture_index()))
+      .unwrap()
+  }
+}

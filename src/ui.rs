@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::game::GameTime;
+use crate::game::GameClock;
 use bevy::prelude::*;
 use bevy_egui::{
   egui::{self, Align2, FontId, RichText, Vec2},
@@ -37,7 +37,7 @@ impl Plugin for UIPlugin {
 fn interface(
   mut contexts: EguiContexts,
   mut state: ResMut<CurrentState>,
-  time: Res<GameTime>,
+  clock: Res<GameClock>,
 ) {
   egui::SidePanel::right("sidebar").default_width(400.0).show(
     contexts.ctx_mut(),
@@ -53,7 +53,7 @@ fn interface(
     .anchor(Align2::LEFT_BOTTOM, Vec2::new(30.0, -30.0))
     .show(contexts.ctx_mut(), |ui| {
       ui.label(
-        RichText::new(time.to_string()).font(FontId::proportional(40.0)),
+        RichText::new(clock.to_string()).font(FontId::proportional(40.0)),
       );
     });
 }

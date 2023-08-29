@@ -25,8 +25,8 @@ pub mod spawner;
 #[derive(Component)]
 pub struct Actor {
   gender: ActorGender,
-  direction: Direction,
-  destination: Option<TilePos>,
+  pub direction: Direction,
+  pub destination: Option<TilePos>,
 }
 
 impl Actor {

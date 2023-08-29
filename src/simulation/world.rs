@@ -16,11 +16,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use super::actors::spawner::ActorsSpawner;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use std::{collections::HashMap, fs::read_to_string};
-
-use super::actors::spawner::ActorsSpawner;
 
 #[derive(Resource, Clone)]
 pub struct World {

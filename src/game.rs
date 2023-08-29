@@ -34,13 +34,8 @@ impl Plugin for GamePlugin {
           })
           .set(ImagePlugin::default_nearest()),
       )
-      .insert_resource(GameTime {
-        timer: Timer::from_seconds(1.0 / 60.0, TimerMode::Repeating),
-        day: 1,
-        hour: 0,
-        minute: 0,
-        second: 0,
-      })
+      .insert_resource(GameTime::default())
+      .insert_resource(GameClock::default())
       .add_event::<GameTick>()
       .add_state::<SpeedState>()
       .add_systems(Update, tick)
@@ -50,6 +45,7 @@ impl Plugin for GamePlugin {
 
 fn tick(
   mut game_time: ResMut<GameTime>,
+  mut game_clock: ResMut<GameClock>,
   time: Res<Time>,
   speed: Res<State<SpeedState>>,
   mut events: EventWriter<GameTick>,
@@ -63,8 +59,14 @@ fn tick(
         SpeedState::OneDay => 1440,
       };
       for _ in 0..iterations {
-        game_time.tick();
-        events.send(GameTick);
+        events.send(GameTick {
+          day: game_clock.day,
+          hour: game_clock.hour,
+          minute: game_clock.minute,
+          second: game_clock.second,
+          total: game_clock.total,
+        });
+        game_clock.tick();
       }
     }
   }
@@ -111,19 +113,16 @@ fn speed_commands(
   }
 }
 
-#[derive(Event)]
-struct GameTick;
-
 #[derive(Resource)]
-pub struct GameTime {
-  timer: Timer,
+pub struct GameClock {
   day: i32,
   hour: u32,
   minute: u32,
   second: u32,
+  total: u32,
 }
 
-impl GameTime {
+impl GameClock {
   fn tick(&mut self) {
     if self.second == 59 {
       self.second = 0;
@@ -141,6 +140,7 @@ impl GameTime {
     } else {
       self.second += 1;
     }
+    self.total += 1;
   }
 
   pub fn to_string(&self) -> String {
@@ -151,10 +151,44 @@ impl GameTime {
   }
 }
 
+impl Default for GameClock {
+  fn default() -> Self {
+    GameClock {
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      total: 0,
+    }
+  }
+}
+
+#[derive(Resource)]
+struct GameTime {
+  timer: Timer,
+}
+
+impl Default for GameTime {
+  fn default() -> Self {
+    GameTime {
+      timer: Timer::from_seconds(1.0 / 60.0, TimerMode::Repeating),
+    }
+  }
+}
+
 #[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
 enum SpeedState {
   #[default]
   OneMinute,
   OneHour,
   OneDay,
+}
+
+#[derive(Event)]
+pub struct GameTick {
+  pub day: i32,
+  pub hour: u32,
+  pub minute: u32,
+  pub second: u32,
+  pub total: u32,
 }

@@ -35,7 +35,14 @@ impl Plugin for SimulationPlugin {
         y_sort: true,
       })
       .add_systems(Startup, init_system)
-      .add_systems(Update, actors::movement::move_system);
+      .add_systems(
+        Update,
+        (
+          actors::movement::move_system,
+          actors::movement::directions_system,
+          actors::movement::animations_system,
+        ),
+      );
   }
 }
 
