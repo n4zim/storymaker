@@ -14,6 +14,15 @@
  "tilecount":110,
  "tiledversion":"1.10.2",
  "tileheight":17,
+ "tiles":[
+        {
+         "id":10,
+         "probability":0.300000011920929
+        }, 
+        {
+         "id":19,
+         "probability":0.300000011920929
+        }],
  "tilewidth":16,
  "type":"tileset",
  "version":"1.10",
@@ -33,23 +42,23 @@
                 {
                  "tileid":44,
                  "wangid":[0, 0, 1, 0, 0, 0, 1, 0]
-                },
+                }, 
                 {
                  "tileid":45,
                  "wangid":[1, 0, 0, 0, 1, 0, 0, 0]
-                },
+                }, 
                 {
                  "tileid":51,
                  "wangid":[0, 0, 1, 0, 1, 0, 0, 0]
-                },
+                }, 
                 {
                  "tileid":52,
                  "wangid":[1, 0, 1, 0, 0, 0, 0, 0]
-                },
+                }, 
                 {
                  "tileid":53,
                  "wangid":[1, 0, 0, 0, 0, 0, 1, 0]
-                },
+                }, 
                 {
                  "tileid":54,
                  "wangid":[0, 0, 0, 0, 1, 0, 1, 0]
