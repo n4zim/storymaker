@@ -16,9 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use self::actions::*;
-use self::scorers::*;
-use self::states::*;
+use self::{actions::*, scorers::*, states::*};
 use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
 use big_brain::prelude::*;
@@ -37,22 +35,26 @@ impl Plugin for BrainPlugin {
       .add_systems(Update, thirst::system)
       .add_systems(
         PreUpdate,
-        (drink::system, move_to_water::system).in_set(BigBrainSet::Actions),
+        (drink::action, move_to_water::action, wander::action)
+          .in_set(BigBrainSet::Actions),
       );
   }
 }
 
 pub fn insert_bundle(entity: &mut EntityCommands) {
   entity.insert((
-    thirst::State::new(75.0, 1.0),
+    thirst::Thirst::new(75.0, 1.0),
     Thinker::build()
+      .label("Thinker")
       .picker(FirstToScore { threshold: 0.8 })
       .when(
-        thirsty::Scorer,
+        thirsty::Thirsty,
         Steps::build()
           .label("MoveAndDrink")
-          .step(move_to_water::Action { speed: 1.0 })
-          .step(drink::Action { speed: 1.0 }),
-      ),
+          .step(move_to_water::MoveToWater::new(1.0))
+          .step(drink::Drink::new(1.0)),
+      )
+      //.otherwise(wander::Action::new()),
+      .otherwise(move_to_water::MoveToWater::new(1.0)),
   ));
 }

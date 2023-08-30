@@ -26,7 +26,7 @@ const DIRECTIONS: [(isize, isize); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
 pub fn paths(
   world: &WorldMap,
   start: &TilePos,
-  targets: &[TilePos],
+  targets: &Vec<TilePos>,
 ) -> Option<Vec<TilePos>> {
   //let now = std::time::Instant::now();
 

@@ -16,52 +16,68 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::{brain::states::thirst, markers};
+use crate::{
+  brain::states::thirst, game::GameTick, markers, pathfinding::paths,
+  world::WorldMap,
+};
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::TilePos;
 use big_brain::prelude::*;
 
 #[derive(Component, ActionBuilder, Clone, Debug)]
-pub struct Action {
+pub struct Drink {
   speed: f32,
 }
 
-pub fn system(
-  time: Res<Time>,
-  mut thirsts: Query<(&TilePos, &mut thirst::State), Without<markers::Water>>,
+impl Drink {
+  pub fn new(speed: f32) -> Self {
+    Self { speed }
+  }
+}
+
+pub fn action(
+  mut events: EventReader<GameTick>,
+  world: Res<WorldMap>,
+  mut query: Query<(&Actor, &mut ActionState, &Drink, &ActionSpan)>,
+  mut thirsts: Query<(&TilePos, &mut thirst::Thirst), Without<markers::Water>>,
   waters: Query<&TilePos, With<markers::Water>>,
-  mut query: Query<(&Actor, &mut ActionState, &Action, &ActionSpan)>,
 ) {
-  for (Actor(actor), mut state, drink, span) in &mut query {
-    let _guard = span.span().enter();
-    let (actor_position, mut thirst) =
-      thirsts.get_mut(*actor).expect("actor has no thirst");
-    match *state {
-      ActionState::Requested => {
-        debug!("Drinking the water.");
-        *state = ActionState::Executing;
-      }
-      ActionState::Executing => {
-        let closest_water_source =
-          find_closest_water_source(&waters, actor_position);
-        let distance =
-          (closest_water_source.position - actor_position.position).length();
-        if distance < MAX_DISTANCE {
-          trace!("Drinking!");
-          thirst.thirst -= drink.per_second * time.delta_seconds();
+  for _clock in events.iter() {
+    for (Actor(actor), mut state, action, span) in &mut query {
+      let _guard = span.span().enter();
+      let (position, mut thirst) =
+        thirsts.get_mut(*actor).expect("actor has no thirst");
+      match *state {
+        ActionState::Requested => {
+          debug!("[REQUEST] Drinking from {:?}", position);
+          if let Some(path) =
+            paths(&world, &position, &waters.iter().cloned().collect())
+          {
+            if path[path.len() - 2] == *position {
+              *state = ActionState::Executing;
+            } else {
+              trace!("[REQUESTED] Not close enough to water");
+              *state = ActionState::Failure;
+            }
+          } else {
+            trace!("[REQUESTED] No path found to water from {:?}", position);
+            *state = ActionState::Failure;
+          }
+        }
+        ActionState::Executing => {
+          thirst.thirst -= action.speed;
           if thirst.thirst <= 0.0 {
             thirst.thirst = 0.0;
+            debug!("[EXECUTED] Drank from {:?}", position);
             *state = ActionState::Success;
           }
-        } else {
-          debug!("We're too far away!");
+        }
+        ActionState::Cancelled => {
+          trace!("[CANCEL] Stopped drinking from {:?}", position);
           *state = ActionState::Failure;
         }
+        _ => {}
       }
-      ActionState::Cancelled => {
-        *state = ActionState::Failure;
-      }
-      _ => {}
     }
   }
 }

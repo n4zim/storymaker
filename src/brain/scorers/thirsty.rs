@@ -21,11 +21,11 @@ use bevy::prelude::*;
 use big_brain::prelude::*;
 
 #[derive(Component, ScorerBuilder, Clone, Debug)]
-pub struct Scorer;
+pub struct Thirsty;
 
 pub fn system(
-  thirsts: Query<&thirst::State>,
-  mut query: Query<(&Actor, &mut Score), With<Scorer>>,
+  thirsts: Query<&thirst::Thirst>,
+  mut query: Query<(&Actor, &mut Score), With<Thirsty>>,
 ) {
   for (Actor(actor), mut score) in &mut query {
     if let Ok(thirst) = thirsts.get(*actor) {

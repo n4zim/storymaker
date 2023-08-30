@@ -16,54 +16,67 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::markers;
+use crate::{game::GameTick, markers, pathfinding::paths, world::WorldMap};
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::TilePos;
 use big_brain::prelude::*;
 
 #[derive(Component, ActionBuilder, Clone, Debug)]
-pub struct Action {
+pub struct MoveToWater {
   speed: f32,
+  path: Vec<TilePos>,
 }
 
-const MAX_DISTANCE: f32 = 0.1;
+impl MoveToWater {
+  pub fn new(speed: f32) -> Self {
+    Self {
+      speed,
+      path: Vec::new(),
+    }
+  }
+}
 
-pub fn system(
-  time: Res<Time>,
-  waters: Query<&TilePos, With<markers::Water>>,
+pub fn action(
+  mut events: EventReader<GameTick>,
+  world: Res<WorldMap>,
+  mut query: Query<(&Actor, &mut ActionState, &mut MoveToWater, &ActionSpan)>,
   mut positions: Query<&mut TilePos, Without<markers::Water>>,
-  mut action_query: Query<(&Actor, &mut ActionState, &Action, &ActionSpan)>,
+  waters: Query<&TilePos, With<markers::Water>>,
 ) {
-  for (actor, mut action_state, move_to, span) in &mut action_query {
-    let _guard = span.span().enter();
-    match *action_state {
-      ActionState::Requested => {
-        debug!("Let's go find some water!");
-        *action_state = ActionState::Executing;
-      }
-      ActionState::Executing => {
-        let mut actor_position =
-          positions.get_mut(actor.0).expect("actor has no position");
-        trace!("Actor position: {:?}", actor_position.position);
-        let closest_water_source =
-          find_closest_water_source(&waters, &actor_position);
-        let delta = closest_water_source.position - actor_position.position;
-        let distance = delta.length();
-        trace!("Distance: {}", distance);
-        if distance > MAX_DISTANCE {
-          trace!("Stepping closer.");
-          let step_size = time.delta_seconds() * move_to.speed;
-          let step = delta.normalize() * step_size.min(distance);
-          actor_position.position += step;
-        } else {
-          debug!("We got there!");
-          *action_state = ActionState::Success;
+  for _clock in events.iter() {
+    for (actor, mut state, mut action, span) in &mut query {
+      let _guard = span.span().enter();
+      let mut position =
+        positions.get_mut(actor.0).expect("actor has no position");
+      match *state {
+        ActionState::Requested => {
+          debug!("[REQUEST] Moving to water from {:?}", position);
+          if let Some(path) =
+            paths(&world, &position, &waters.iter().cloned().collect())
+          {
+            action.path = path.iter().take(path.len() - 1).cloned().collect();
+            *state = ActionState::Executing;
+          } else {
+            trace!("[REQUESTED] No path found to water from {:?}", position);
+            *state = ActionState::Failure;
+          }
         }
+        ActionState::Executing => {
+          if action.path.is_empty() {
+            debug!("[EXECUTED] Arrived at water to drink at {:?}", position);
+            *state = ActionState::Success;
+          } else {
+            let destination = action.path.remove(0);
+            position.x = destination.x;
+            position.y = destination.y;
+          }
+        }
+        ActionState::Cancelled => {
+          trace!("[CANCEL] Stopped moving to water from {:?}", position);
+          *state = ActionState::Failure;
+        }
+        _ => {}
       }
-      ActionState::Cancelled => {
-        *action_state = ActionState::Failure;
-      }
-      _ => {}
     }
   }
 }

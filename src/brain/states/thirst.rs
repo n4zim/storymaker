@@ -20,12 +20,12 @@ use crate::game::GameTick;
 use bevy::prelude::*;
 
 #[derive(Component, Debug)]
-pub struct State {
+pub struct Thirst {
   pub speed: f32,
   pub thirst: f32,
 }
 
-impl State {
+impl Thirst {
   pub fn new(thirst: f32, speed: f32) -> Self {
     Self { thirst, speed }
   }
@@ -33,7 +33,7 @@ impl State {
 
 pub fn system(
   mut events: EventReader<GameTick>,
-  mut thirsts: Query<&mut State>,
+  mut thirsts: Query<&mut Thirst>,
 ) {
   for _ in events.iter() {
     for mut thirst in &mut thirsts {

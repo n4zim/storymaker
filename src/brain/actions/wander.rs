@@ -16,59 +16,97 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::{game::GameTick, pathfinding::paths, world::WorldMap, characters::{CharacterDirection, Character}};
+use crate::{
+  characters::Character, game::GameTick, pathfinding::paths, world::WorldMap,
+};
 use bevy::prelude::*;
-use bevy_ecs_tilemap::tiles::{TileColor, TilePos, TileTextureIndex};
+use bevy_ecs_tilemap::tiles::{TileColor, TilePos};
 use big_brain::prelude::*;
 use rand::Rng;
 
 #[derive(Component, ActionBuilder, Clone, Debug)]
-pub struct Action {
+pub struct Wander {
   path: Vec<TilePos>,
 }
 
-pub fn system(
+impl Wander {
+  pub fn new() -> Self {
+    Self { path: vec![] }
+  }
+}
+
+pub fn action(
   mut events: EventReader<GameTick>,
-  mut query: Query<(&mut Actor, &mut TileColor, &mut TilePos)>,
   world: Res<WorldMap>,
+  mut query: Query<(
+    &mut Character,
+    &mut TilePos,
+    &mut TileColor,
+    &mut ActionState,
+    &mut Wander,
+    &ActionSpan,
+  )>,
 ) {
   for _clock in events.iter() {
-    for (mut actor, mut color, mut position) in query.iter_mut() {
-      if actor.path.is_empty() {
-        let mut rng: rand::rngs::ThreadRng = rand::thread_rng();
-        loop {
-          let destination = TilePos {
-            x: rng.gen_range(0..world.size.x),
-            y: rng.gen_range(0..world.size.y),
-          };
-          if let Some(path) = paths(&world, &position, &[destination]) {
-            actor.path = path;
-            break;
+    for (mut character, mut position, mut color, mut state, mut action, span) in
+      query.iter_mut()
+    {
+      let _guard = span.span().enter();
+      match *state {
+        ActionState::Requested => {
+          debug!("[REQUEST] Wander from {:?}", position);
+          let mut rng: rand::rngs::ThreadRng = rand::thread_rng();
+          loop {
+            if let Some(path) = paths(
+              &world,
+              &position,
+              &vec![TilePos {
+                x: rng.gen_range(0..world.size.x),
+                y: rng.gen_range(0..world.size.y),
+              }],
+            ) {
+              action.path = path;
+              *state = ActionState::Executing;
+              break;
+            }
           }
         }
-      }
+        ActionState::Executing => {
+          if action.path.is_empty() {
+            trace!("[EXECUTED] Wandered to {:?}", position);
+            *state = ActionState::Success;
+          } else {
+            character.set_next_posture();
 
-      actor.set_next_posture();
+            let destination = action.path.remove(0);
 
-      let destination = actor.path.remove(0);
-      position.x = destination.x;
-      position.y = destination.y;
-
-      if world.is_walkable(&destination) {
-        color.0 = Color::Rgba {
-          red: 1.0,
-          green: 1.0,
-          blue: 1.0,
-          alpha: 1.0,
-        };
-      } else {
-        color.0 = Color::RED;
+            if world.is_walkable(&destination) {
+              position.x = destination.x;
+              position.y = destination.y;
+              color.0 = Color::Rgba {
+                red: 1.0,
+                green: 1.0,
+                blue: 1.0,
+                alpha: 1.0,
+              };
+            } else {
+              color.0 = Color::RED;
+              trace!("[EXECUTING] Can't walk to {:?}", position);
+              *state = ActionState::Failure;
+            }
+          }
+        }
+        ActionState::Cancelled => {
+          trace!("[CANCEL] Stopped wandering at {:?}", position);
+          *state = ActionState::Failure;
+        }
+        _ => {}
       }
     }
   }
 }
 
-pub fn directions_system(mut query: Query<(&mut Character, &mut TilePos, &)>) {
+/*pub fn directions_system(mut query: Query<(&mut Character, &mut TilePos, &)>) {
   for (mut actor, position) in query.iter_mut() {
     if !actor.path.is_empty() {
       let destination = actor.path[0];
@@ -103,4 +141,4 @@ pub fn texture_system(mut query: Query<(&mut Character, &mut TileTextureIndex)>)
       .set(Box::new(actor.get_texture_index()))
       .unwrap()
   }
-}
+}*/
