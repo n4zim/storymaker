@@ -21,7 +21,6 @@ use bevy_ecs_tilemap::tiles::{TilePos, TileTextureIndex};
 
 pub mod animations;
 pub mod movement;
-pub mod pathfinding;
 pub mod spawner;
 
 #[derive(Component)]

@@ -16,11 +16,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use super::super::world::WorldMap;
 use super::Actor;
-use crate::{
-  game::GameTick, simulation::actors::pathfinding::find_target_path,
-};
+use crate::simulation::world::WorldMap;
+use crate::{game::GameTick, simulation::pathfinding::find_target_path};
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::{TileColor, TilePos};
 use rand::Rng;

@@ -22,6 +22,7 @@ use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 
 mod actors;
+mod pathfinding;
 mod world;
 
 pub struct SimulationPlugin;
