@@ -3,7 +3,13 @@ name = "storymaker_pathfinding"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "nearest_path"
+path = "src/nearest_path.rs"
+
+[[bin]]
+name = "find_path"
+path = "src/find_path.rs"
 
 [dependencies]
 pathfinding = "4.3.1"
