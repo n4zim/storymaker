@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use bevy::prelude::*;
+use bevy::{log::LogPlugin, prelude::*};
 use bevy_ecs_tilemap::{prelude::TilemapRenderSettings, TilemapPlugin};
 
 mod brain;
@@ -39,7 +39,12 @@ fn main() {
           }),
           ..default()
         })
-        .set(ImagePlugin::default_nearest()),
+        .set(ImagePlugin::default_nearest())
+        .set(LogPlugin {
+          filter: "wgpu=error,naga=warn,big_brain=debug,sequence=debug"
+            .to_string(),
+          ..default()
+        }),
       TilemapPlugin,
       game::GamePlugin,
       brain::BrainPlugin,

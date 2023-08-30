@@ -50,7 +50,7 @@ impl Character {
     )
   }
 
-  fn set_next_posture(&mut self) {
+  pub fn set_next_posture(&mut self) {
     self.posture = match self.posture {
       CharacterPosture::LeftFoot => CharacterPosture::Idle,
       CharacterPosture::Idle => {

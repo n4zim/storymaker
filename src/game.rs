@@ -26,7 +26,8 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
   fn build(&self, app: &mut App) {
     app
-      .insert_resources((GameTime::default(), GameClock::default()))
+      .insert_resource(GameClock::default())
+      .insert_resource(GameTime::default())
       .add_state::<GameSpeed>()
       .add_event::<GameTick>()
       .add_systems(Startup, init)
