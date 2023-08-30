@@ -871,6 +871,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "big-brain"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ca84fca00ea07a9cd447f219f27d79366aaf02439a0226b0a28a7a9ed083cb9c"
+dependencies = [
+ "bevy",
+ "big-brain-derive",
+]
+
+[[package]]
+name = "big-brain-derive"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed1182a1a029aeb2aa54b5a06250559fc1f69a50e7008ab66c6f7907973e4592"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "bit-set"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2496,6 +2517,7 @@ dependencies = [
  "bevy",
  "bevy_ecs_tilemap 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bevy_egui",
+ "big-brain",
  "pathfinding",
  "rand",
  "serde",
