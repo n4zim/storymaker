@@ -17,38 +17,6 @@
  */
 
 use bevy::prelude::*;
-use bevy_ecs_tilemap::{prelude::TilemapRenderSettings, TilemapPlugin};
 
-mod brain;
-mod camera;
-mod characters;
-mod game;
-mod markers;
-mod pathfinding;
-mod ui;
-mod world;
-
-fn main() {
-  App::new()
-    .add_plugins((
-      DefaultPlugins
-        .set(WindowPlugin {
-          primary_window: Some(Window {
-            title: String::from("StoryMaker"),
-            ..Default::default()
-          }),
-          ..default()
-        })
-        .set(ImagePlugin::default_nearest()),
-      TilemapPlugin,
-      game::GamePlugin,
-      brain::BrainPlugin,
-      camera::CameraPlugin,
-      ui::UIPlugin,
-    ))
-    .insert_resource(TilemapRenderSettings {
-      render_chunk_size: UVec2::new(3, 1),
-      y_sort: true,
-    })
-    .run();
-}
+#[derive(Component, Debug)]
+pub struct Water;

@@ -16,14 +16,14 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::simulation::world::WorldMap;
+use crate::world::WorldMap;
 use bevy::utils::HashSet;
 use bevy_ecs_tilemap::tiles::TilePos;
 use pathfinding::prelude::astar;
 
 const DIRECTIONS: [(isize, isize); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
 
-pub fn find(
+pub fn paths(
   world: &WorldMap,
   start: &TilePos,
   targets: &[TilePos],

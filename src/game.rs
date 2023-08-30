@@ -16,47 +16,52 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::{characters::Spawner, world::WorldMap};
 use bevy::prelude::*;
+
+// -----------------------------------------------------------------------------
 
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
   fn build(&self, app: &mut App) {
     app
-      .add_plugins(
-        DefaultPlugins
-          .set(WindowPlugin {
-            primary_window: Some(Window {
-              title: String::from("StoryMaker"),
-              ..Default::default()
-            }),
-            ..default()
-          })
-          .set(ImagePlugin::default_nearest()),
-      )
-      .insert_resource(GameTime::default())
-      .insert_resource(GameClock::default())
+      .insert_resources((GameTime::default(), GameClock::default()))
+      .add_state::<GameSpeed>()
       .add_event::<GameTick>()
-      .add_state::<SpeedState>()
-      .add_systems(Update, tick)
-      .add_systems(Update, speed_commands);
+      .add_systems(Startup, init)
+      .add_systems(Update, (tick, speed_commands));
   }
+}
+
+// -----------------------------------------------------------------------------
+
+fn init(mut commands: Commands, asset_server: Res<AssetServer>) {
+  let world = WorldMap::new(&asset_server, "island1");
+
+  let mut spawner =
+    Spawner::new(world.size, world.grid, &mut commands, &asset_server);
+
+  world.render(&mut commands, &mut spawner);
+
+  commands.insert_resource(world);
+  commands.insert_resource(spawner);
 }
 
 fn tick(
   mut game_time: ResMut<GameTime>,
   mut game_clock: ResMut<GameClock>,
   time: Res<Time>,
-  speed: Res<State<SpeedState>>,
+  speed: Res<State<GameSpeed>>,
   mut events: EventWriter<GameTick>,
 ) {
   game_time.0.tick(time.delta());
   if game_time.0.finished() {
     if !game_time.0.paused() {
       let iterations = match speed.get() {
-        SpeedState::OneMinute => 1,
-        SpeedState::OneHour => 60,
-        SpeedState::OneDay => 1440,
+        GameSpeed::OneMinute => 1,
+        GameSpeed::OneHour => 60,
+        GameSpeed::OneDay => 1440,
       };
       for _ in 0..iterations {
         events.send(GameTick {
@@ -74,8 +79,8 @@ fn tick(
 
 fn speed_commands(
   mut time: ResMut<GameTime>,
-  current_state: Res<State<SpeedState>>,
-  mut next_state: ResMut<NextState<SpeedState>>,
+  current_state: Res<State<GameSpeed>>,
+  mut next_state: ResMut<NextState<GameSpeed>>,
   keyboard_input: Res<Input<KeyCode>>,
 ) {
   if keyboard_input.just_pressed(KeyCode::Space) {
@@ -90,28 +95,30 @@ fn speed_commands(
   let current_state = *current_state.get();
 
   if keyboard_input.just_pressed(KeyCode::Key1) {
-    if current_state != SpeedState::OneMinute {
-      next_state.set(SpeedState::OneMinute);
+    if current_state != GameSpeed::OneMinute {
+      next_state.set(GameSpeed::OneMinute);
       if time.0.paused() {
         time.0.unpause();
       }
     }
   } else if keyboard_input.just_pressed(KeyCode::Key2) {
-    if current_state != SpeedState::OneHour {
-      next_state.set(SpeedState::OneHour);
+    if current_state != GameSpeed::OneHour {
+      next_state.set(GameSpeed::OneHour);
       if time.0.paused() {
         time.0.unpause();
       }
     }
   } else if keyboard_input.just_pressed(KeyCode::Key3) {
-    if current_state != SpeedState::OneDay {
-      next_state.set(SpeedState::OneDay);
+    if current_state != GameSpeed::OneDay {
+      next_state.set(GameSpeed::OneDay);
       if time.0.paused() {
         time.0.unpause();
       }
     }
   }
 }
+
+// -----------------------------------------------------------------------------
 
 #[derive(Resource)]
 pub struct GameClock {
@@ -163,6 +170,8 @@ impl Default for GameClock {
   }
 }
 
+// -----------------------------------------------------------------------------
+
 #[derive(Resource)]
 struct GameTime(Timer);
 
@@ -172,13 +181,17 @@ impl Default for GameTime {
   }
 }
 
+// -----------------------------------------------------------------------------
+
 #[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
-enum SpeedState {
+enum GameSpeed {
   #[default]
   OneMinute,
   OneHour,
   OneDay,
 }
+
+// -----------------------------------------------------------------------------
 
 #[derive(Event)]
 pub struct GameTick {

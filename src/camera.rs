@@ -30,11 +30,10 @@ pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
   fn build(&self, app: &mut App) {
-    app
-      .add_systems(Startup, startup)
-      .add_systems(Update, keyboard_movement)
-      .add_systems(Update, scroll_zoom)
-      .add_systems(Update, middle_click_movement);
+    app.add_systems(Startup, startup).add_systems(
+      Update,
+      (keyboard_movement, scroll_zoom, middle_click_movement),
+    );
   }
 }
 

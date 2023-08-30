@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use super::actors::spawner::ActorsSpawner;
+use crate::{characters, markers};
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use std::{collections::HashMap, fs::read_to_string};
@@ -28,6 +28,11 @@ pub struct WorldMap {
   terrain_texture: TilemapTexture,
   terrain_size: TilemapTileSize,
   layers: Vec<WorldMapLayer>,
+}
+
+struct WorldMapLayer {
+  name: String,
+  tiles: Vec<Vec<Option<WorldMapTile>>>,
 }
 
 impl WorldMap {
@@ -76,7 +81,11 @@ impl WorldMap {
     }
   }
 
-  pub fn render(&self, commands: &mut Commands, spawner: &mut ActorsSpawner) {
+  pub fn render(
+    &self,
+    commands: &mut Commands,
+    spawner: &mut characters::Spawner,
+  ) {
     let map_type = TilemapType::Isometric(IsoCoordSystem::Diamond);
     for (layer_index, tiles) in self.layers.iter().enumerate() {
       //println!("Rendering layer {}", tiles.name);
@@ -91,17 +100,16 @@ impl WorldMap {
               x: x as u32,
               y: y as u32,
             };
-            storage.set(
-              &position,
-              commands
-                .spawn(TileBundle {
-                  position,
-                  tilemap_id: TilemapId(layer_entity),
-                  texture_index: tile.clone().to_texture_index(),
-                  ..Default::default()
-                })
-                .id(),
-            );
+            let mut entity = commands.spawn(TileBundle {
+              position,
+              tilemap_id: TilemapId(layer_entity),
+              texture_index: tile.clone().to_texture_index(),
+              ..Default::default()
+            });
+            if tile == &WorldMapTile::Water {
+              entity.insert(markers::Water);
+            }
+            storage.set(&position, entity.id());
             if tile == &WorldMapTile::House {
               spawner.insert_with_random_gender(commands, position);
             }
@@ -158,10 +166,7 @@ impl WorldMap {
   }
 }
 
-struct WorldMapLayer {
-  name: String,
-  tiles: Vec<Vec<Option<WorldMapTile>>>,
-}
+// -----------------------------------------------------------------------------
 
 #[derive(PartialEq, Clone)]
 pub enum WorldMapTile {
@@ -213,6 +218,8 @@ impl WorldMapTile {
       || self == Self::BridgeRight
   }
 }
+
+// -----------------------------------------------------------------------------
 
 #[derive(serde::Deserialize)]
 struct WorldConfig {
