@@ -74,21 +74,27 @@ fn find_path(
   let result = astar(
     &start,
     |&node| {
-      let (x, y) = node;
-      let mut neighbors = Vec::new();
+      let mut successors = Vec::new();
       for (dx, dy) in DIRECTIONS {
-        let new_x = (x as isize + dx) as usize;
-        let new_y = (y as isize + dy) as usize;
-        if new_x < grid.len() && new_y < grid[0].len() && grid[new_x][new_y] {
-          neighbors.push(((new_x, new_y), 1));
+        let x = (node.0 as isize + dx) as usize;
+        let y = (node.1 as isize + dy) as usize;
+        if x < grid.len() && y < grid[0].len() && grid[x][y] {
+          successors.push(((x, y), 1));
         }
       }
-      neighbors
+      successors
     },
     |&node| {
-      let (x, y) = node;
-      let dx = if x > goal.0 { x - goal.0 } else { goal.0 - x };
-      let dy = if y > goal.1 { y - goal.1 } else { goal.1 - y };
+      let dx = if node.0 > goal.0 {
+        node.0 - goal.0
+      } else {
+        goal.0 - node.0
+      };
+      let dy = if node.1 > goal.1 {
+        node.1 - goal.1
+      } else {
+        goal.1 - node.1
+      };
       dx + dy
     },
     |&node| node == goal,

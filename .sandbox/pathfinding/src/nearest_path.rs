@@ -16,20 +16,20 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use pathfinding::prelude::astar;
+use pathfinding::prelude::bfs;
 
 fn main() {
   let grid = vec![
     vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    vec![0, 1, 1, 1, 1, 1, 1, 1, 2, 0],
+    vec![0, 1, 1, 1, 1, 1, 4, 1, 2, 0],
     vec![0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
     vec![0, 1, 0, 0, 1, 1, 1, 0, 1, 0],
     vec![0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
-    vec![0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
+    vec![0, 1, 0, 0, 5, 0, 5, 0, 1, 0],
     vec![0, 1, 0, 0, 2, 0, 1, 0, 3, 0],
+    vec![0, 4, 0, 0, 1, 0, 1, 0, 1, 0],
     vec![0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
-    vec![0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
-    vec![0, 3, 1, 1, 1, 1, 1, 1, 1, 0],
+    vec![0, 3, 1, 1, 1, 1, 1, 1, 5, 0],
     vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   ];
 
@@ -38,6 +38,8 @@ fn main() {
   test("=7 (NOK)", &grid, start, 7);
   test("=2 (OK)", &grid, start, 2);
   test("=3 (OK)", &grid, start, 3);
+  test("=4 (OK)", &grid, start, 4);
+  test("=5 (OK)", &grid, start, 5);
 }
 
 const DIRECTIONS: [(isize, isize); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
@@ -47,67 +49,42 @@ fn find_nearest(
   start: (usize, usize),
   target: usize,
 ) -> Option<Vec<(usize, usize)>> {
-  let result = astar(
+  let result = bfs(
     &start,
     |&node| {
-      let (x, y) = node;
-      let mut neighbors = Vec::new();
-      for (dx, dy) in DIRECTIONS {
-        let new_x = (x as isize + dx) as usize;
-        let new_y = (y as isize + dy) as usize;
-        if new_x < grid.len()
-          && new_y < grid[0].len()
-          && grid[new_x][new_y] != 0
+      let mut successors = Vec::new();
+      for &(x, y) in DIRECTIONS.iter() {
+        let x = node.0 as isize + x;
+        let y = node.1 as isize + y;
+        if x >= 0
+          && x < grid.len() as isize
+          && y >= 0
+          && y < grid[0].len() as isize
         {
-          neighbors.push(((new_x, new_y), 1));
+          let nx = x as usize;
+          let ny = y as usize;
+          if grid[nx][ny] != 0 {
+            successors.push((nx, ny));
+          }
         }
       }
-      neighbors
+      successors
     },
-    |&node| {
-      let (x, y) = node;
-      let target_pos = find_position(&grid, target).unwrap_or((0, 0));
-      let dx = if x > target_pos.0 {
-        x - target_pos.0
-      } else {
-        target_pos.0 - x
-      };
-      let dy = if y > target_pos.1 {
-        y - target_pos.1
-      } else {
-        target_pos.1 - y
-      };
-      dx + dy
-    },
-    |&node| grid[node.0][node.1] == target,
+    |&(x, y)| grid[x][y] == target,
   );
-  if let Some((path, _cost)) = result {
+  if let Some(path) = result {
     Some(path.into_iter().skip(1).collect())
   } else {
     None
   }
 }
 
-fn find_position(
-  grid: &Vec<Vec<usize>>,
-  value: usize,
-) -> Option<(usize, usize)> {
-  for (x, row) in grid.iter().enumerate() {
-    for (y, &cell) in row.iter().enumerate() {
-      if cell == value {
-        return Some((x, y));
-      }
-    }
-  }
-  None
-}
-
 fn print_grid_path(
   grid: &Vec<Vec<usize>>,
   path: &Vec<(usize, usize)>,
   start: (usize, usize),
-  target: usize,
 ) {
+  let last = path.last().unwrap();
   for (x, row) in grid.iter().enumerate() {
     for (y, col) in row.iter().enumerate() {
       if *col == 0 {
@@ -117,7 +94,7 @@ fn print_grid_path(
           print!("#");
         }
       } else if path.contains(&(x, y)) {
-        if (x, y) == find_position(&grid, target).unwrap_or((0, 0)) {
+        if (x, y) == *last {
           print!("G");
         } else {
           print!("*");
@@ -142,6 +119,6 @@ fn test(
   let path = find_nearest(grid, start, target);
   println!("Path {} {:?}", name, path);
   if let Some(path) = path {
-    print_grid_path(grid, &path, start, target);
+    print_grid_path(grid, &path, start);
   }
 }
