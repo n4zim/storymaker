@@ -18,7 +18,9 @@
 
 use super::super::world::WorldMap;
 use super::Actor;
-use crate::game::GameTick;
+use crate::{
+  game::GameTick, simulation::actors::pathfinding::find_target_path,
+};
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::{TileColor, TilePos};
 use rand::Rng;
@@ -28,45 +30,36 @@ pub fn random_system(
   mut query: Query<(&mut Actor, &mut TileColor, &mut TilePos)>,
   world: Res<WorldMap>,
 ) {
-  for clock in events.iter() {
+  for _clock in events.iter() {
     for (mut actor, mut color, mut position) in query.iter_mut() {
-      if clock.total % 10 != 0 {
-        continue;
-      }
-
-      if actor.destination.is_none() {
+      if actor.path.is_empty() {
         let mut rng: rand::rngs::ThreadRng = rand::thread_rng();
-        actor.destination = Some(TilePos {
-          x: rng.gen_range(10..world.size.x - 10),
-          y: rng.gen_range(10..world.size.y - 10),
-        });
+        loop {
+          let destination = TilePos {
+            x: rng.gen_range(0..world.size.x),
+            y: rng.gen_range(0..world.size.y),
+          };
+          if let Some(path) = find_target_path(
+            &world,
+            TilePos {
+              x: position.x,
+              y: position.y,
+            },
+            destination,
+          ) {
+            actor.path = path;
+            break;
+          }
+        }
       }
 
       actor.set_next_posture();
 
-      let destination = actor.destination.unwrap();
-      let mut leave = false;
+      let destination = actor.path.remove(0);
+      position.x = destination.x;
+      position.y = destination.y;
 
-      if position.x != destination.x {
-        if position.x < destination.x {
-          position.x += 1;
-        } else {
-          position.x -= 1;
-        }
-      } else {
-        leave = true;
-      }
-
-      if position.y != destination.y {
-        if position.y < destination.y {
-          position.y += 1;
-        } else {
-          position.y -= 1;
-        }
-        leave = false;
-      }
-
-      if world.is_walkable(&position) {
+      if world.is_walkable(&destination) {
         color.0 = Color::Rgba {
           red: 1.0,
           green: 1.0,
@@ -75,10 +68,6 @@ pub fn random_system(
         };
       } else {
         color.0 = Color::RED;
-      }
-
-      if leave {
-        actor.destination = None;
       }
     }
   }

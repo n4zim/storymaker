@@ -22,8 +22,8 @@ use bevy_ecs_tilemap::tiles::{TilePos, TileTextureIndex};
 
 pub fn directions_system(mut query: Query<(&mut Actor, &mut TilePos)>) {
   for (mut actor, position) in query.iter_mut() {
-    if actor.destination.is_some() {
-      let destination = actor.destination.unwrap();
+    if !actor.path.is_empty() {
+      let destination = actor.path[0];
       actor.direction = if position.x < destination.x {
         if position.y < destination.y {
           ActorDirection::BottomRight

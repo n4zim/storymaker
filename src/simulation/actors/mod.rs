@@ -30,7 +30,7 @@ pub struct Actor {
   direction: ActorDirection,
   posture: ActorPosture,
   posture_reverse: bool,
-  destination: Option<TilePos>,
+  path: Vec<TilePos>,
 }
 
 impl Actor {
@@ -40,7 +40,7 @@ impl Actor {
       direction: ActorDirection::Bottom,
       posture: ActorPosture::Idle,
       posture_reverse: false,
-      destination: None,
+      path: Vec::new(),
     }
   }
 
