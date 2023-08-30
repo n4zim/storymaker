@@ -18,7 +18,7 @@
 
 use super::Actor;
 use crate::simulation::world::WorldMap;
-use crate::{game::GameTick, simulation::pathfinding::find_target_path};
+use crate::{game::GameTick, simulation::pathfinding::find};
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::{TileColor, TilePos};
 use rand::Rng;
@@ -37,14 +37,7 @@ pub fn random_system(
             x: rng.gen_range(0..world.size.x),
             y: rng.gen_range(0..world.size.y),
           };
-          if let Some(path) = find_target_path(
-            &world,
-            TilePos {
-              x: position.x,
-              y: position.y,
-            },
-            destination,
-          ) {
+          if let Some(path) = find(&world, &position, &[destination]) {
             actor.path = path;
             break;
           }

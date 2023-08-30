@@ -17,21 +17,31 @@
  */
 
 use crate::simulation::world::WorldMap;
+use bevy::utils::HashSet;
 use bevy_ecs_tilemap::tiles::TilePos;
 use pathfinding::prelude::astar;
 
 const DIRECTIONS: [(isize, isize); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
 
-pub fn find_target_path(
+pub fn find(
   world: &WorldMap,
-  start: TilePos,
-  target: TilePos,
+  start: &TilePos,
+  targets: &[TilePos],
 ) -> Option<Vec<TilePos>> {
-  if !world.is_walkable(&target) {
+  //let now = std::time::Instant::now();
+
+  let targets = targets
+    .iter()
+    .cloned()
+    .filter(|t| *t != *start && world.is_walkable(t))
+    .collect::<HashSet<TilePos>>();
+
+  if targets.is_empty() {
     return None;
   }
+
   let result = astar(
-    &start,
+    start,
     |&node| {
       let mut successors = Vec::new();
       for (dx, dy) in DIRECTIONS {
@@ -47,22 +57,29 @@ pub fn find_target_path(
       successors
     },
     |&node| {
-      let dx = if node.x > target.x {
-        node.x - target.x
-      } else {
-        target.x - node.x
-      };
-      let dy = if node.y > target.y {
-        node.y - target.y
-      } else {
-        target.y - node.y
-      };
-      dx + dy
+      let mut cost = 0;
+      for target in targets.iter() {
+        let dx = if node.x > target.x {
+          node.x - target.x
+        } else {
+          target.x - node.x
+        };
+        let dy = if node.y > target.y {
+          node.y - target.y
+        } else {
+          target.y - node.y
+        };
+        cost += dx + dy;
+      }
+      cost
     },
-    |&node| node == target,
+    |&node| targets.contains(&node),
   );
+
+  //println!("Pathfinding took {}mic", now.elapsed().as_micros());
+
   if let Some((path, _cost)) = result {
-    Some(path.into_iter().skip(1).collect())
+    Some(path)
   } else {
     None
   }
