@@ -17,7 +17,6 @@
  */
 
 use super::world::WorldMap;
-use bevy::utils::HashSet;
 use bevy_ecs_tilemap::tiles::TilePos;
 use pathfinding::prelude::astar;
 
@@ -28,7 +27,7 @@ pub fn paths(
   start: &TilePos,
   targets: &Vec<TilePos>,
 ) -> Option<Vec<TilePos>> {
-  let now = std::time::Instant::now();
+  //let now = std::time::Instant::now();
 
   /*let targets = targets
   .iter()

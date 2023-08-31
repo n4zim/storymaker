@@ -26,14 +26,14 @@ use big_brain::prelude::*;
 
 #[derive(Component, ActionBuilder, Clone, Debug)]
 pub struct MoveToWater {
-  speed: f32,
+  _speed: f32,
   path: Vec<TilePos>,
 }
 
 impl MoveToWater {
-  pub fn new(speed: f32) -> Self {
+  pub fn new(_speed: f32) -> Self {
     Self {
-      speed,
+      _speed,
       path: Vec::new(),
     }
   }
