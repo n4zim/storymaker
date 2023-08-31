@@ -21,7 +21,7 @@ use crate::{
   world::WorldMap,
 };
 use bevy::prelude::*;
-use bevy_ecs_tilemap::tiles::TilePos;
+use bevy_ecs_tilemap::tiles::{TileColor, TilePos};
 use big_brain::prelude::*;
 
 #[derive(Component, ActionBuilder, Clone, Debug)]
@@ -39,13 +39,16 @@ pub fn action(
   mut events: EventReader<GameTick>,
   world: Res<WorldMap>,
   mut query: Query<(&Actor, &mut ActionState, &Drink, &ActionSpan)>,
-  mut thirsts: Query<(&TilePos, &mut thirst::Thirst), Without<markers::Water>>,
+  mut thirsts: Query<
+    (&TilePos, &mut TileColor, &mut thirst::Thirst),
+    Without<markers::Water>,
+  >,
   waters: Query<&TilePos, With<markers::Water>>,
 ) {
   for _clock in events.iter() {
     for (Actor(actor), mut state, action, span) in &mut query {
       let _guard = span.span().enter();
-      let (position, mut thirst) =
+      let (position, mut color, mut thirst) =
         thirsts.get_mut(*actor).expect("actor has no thirst");
       //println!("Drink state: {:?} with thirst {:?}", state, thirst.current);
       match *state {
@@ -55,6 +58,7 @@ pub fn action(
             paths(&world, &position, &waters.iter().cloned().collect())
           {
             if path[path.len() - 2] == *position {
+              color.0 = Color::rgb(0.0, 0.0, 1.0);
               *state = ActionState::Executing;
             } else {
               trace!("[REQUESTED] Not close enough to water");
@@ -70,11 +74,13 @@ pub fn action(
           if thirst.current <= 0.0 {
             thirst.current = 0.0;
             debug!("[EXECUTED] Drank from {:?}", position);
+            color.0 = Color::rgb(1.0, 1.0, 1.0);
             *state = ActionState::Success;
           }
         }
         ActionState::Cancelled => {
           trace!("[CANCEL] Stopped drinking from {:?}", position);
+          color.0 = Color::rgb(1.0, 1.0, 1.0);
           *state = ActionState::Failure;
         }
         _ => {}

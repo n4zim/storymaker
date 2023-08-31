@@ -54,7 +54,7 @@ pub fn action(
       let _guard = span.span().enter();
       let (mut position, mut color) =
         positions.get_mut(actor.0).expect("actor has no position");
-      println!("MoveToWater state: {:?}", state);
+      //println!("MoveToWater state: {:?}", state);
       match *state {
         ActionState::Requested => {
           debug!("[REQUEST] Moving to water from {:?}", position);
@@ -62,7 +62,7 @@ pub fn action(
             paths(&world, &position, &waters.iter().cloned().collect())
           {
             action.path = path.iter().take(path.len() - 1).cloned().collect();
-            color.0 = Color::rgb(0.5, 0.5, 1.0);
+            color.0 = Color::rgb(0.0, 0.0, 1.0);
             *state = ActionState::Executing;
           } else {
             trace!("[REQUESTED] No path found to water from {:?}", position);
