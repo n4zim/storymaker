@@ -28,17 +28,27 @@ pub fn paths(
   start: &TilePos,
   targets: &Vec<TilePos>,
 ) -> Option<Vec<TilePos>> {
-  //let now = std::time::Instant::now();
+  let now = std::time::Instant::now();
 
-  let targets = targets
-    .iter()
-    .cloned()
-    .filter(|t| *t != *start && world.is_walkable(t))
-    .collect::<HashSet<TilePos>>();
+  /*let targets = targets
+  .iter()
+  .cloned()
+  //.filter(|t| *t != *start && world.is_walkable(t))
+  .collect::<HashSet<TilePos>>();*/
 
   if targets.is_empty() {
+    //println!("No targets");
     return None;
   }
+
+  let mut targets = targets.clone();
+  targets.sort_by(|a, b| {
+    let da = distance(start, a);
+    let db = distance(start, b);
+    da.cmp(&db)
+  });
+  // To speed up the pathfinding, we only consider the closest target
+  let target = targets[0];
 
   let result = astar(
     start,
@@ -49,7 +59,7 @@ pub fn paths(
         let y = (node.y as isize + dy) as u32;
         if x < world.size.x && y < world.size.y {
           let position = TilePos { x, y };
-          if world.is_walkable(&position) {
+          if world.is_walkable(&position) || position == target {
             successors.push((position, 1));
           }
         }
@@ -57,31 +67,29 @@ pub fn paths(
       successors
     },
     |&node| {
-      let mut cost = 0;
+      distance(&node, &target)
+      /*let mut cost = 0;
       for target in targets.iter() {
-        let dx = if node.x > target.x {
-          node.x - target.x
-        } else {
-          target.x - node.x
-        };
-        let dy = if node.y > target.y {
-          node.y - target.y
-        } else {
-          target.y - node.y
-        };
-        cost += dx + dy;
+        cost += distance(&node, &target);
       }
-      cost
+      cost*/
     },
-    |&node| targets.contains(&node),
+    |&node| node == target,
+    //|&node| targets.contains(&node),
   );
 
-  //println!("Pathfinding took {}mic", now.elapsed().as_micros());
-  println!("Pathfinding result: {:?}", result);
+  //println!("Pathfinding took {}ms", now.elapsed().as_millis());
+  //println!("Pathfinding result: {:?}", result);
 
   if let Some((path, _cost)) = result {
     Some(path)
   } else {
     None
   }
+}
+
+fn distance(a: &TilePos, b: &TilePos) -> u32 {
+  let dx = if a.x > b.x { a.x - b.x } else { b.x - a.x };
+  let dy = if a.y > b.y { a.y - b.y } else { b.y - a.y };
+  dx + dy
 }
