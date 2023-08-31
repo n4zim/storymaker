@@ -16,10 +16,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::{characters, markers};
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use std::{collections::HashMap, fs::read_to_string};
+
+use super::{characters, markers};
 
 #[derive(Resource)]
 pub struct WorldMap {

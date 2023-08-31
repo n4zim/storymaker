@@ -17,8 +17,8 @@
  */
 
 use crate::{
-  characters::Character, game::GameTick, markers, pathfinding::paths,
-  world::WorldMap,
+  core::{characters::Character, markers, pathfinding::paths, world::WorldMap},
+  game::GameTick,
 };
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::{TileColor, TilePos};

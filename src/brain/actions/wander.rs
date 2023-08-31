@@ -17,7 +17,8 @@
  */
 
 use crate::{
-  characters::Character, game::GameTick, pathfinding::paths, world::WorldMap,
+  core::{characters::Character, pathfinding::paths, world::WorldMap},
+  game::GameTick,
 };
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::{TileColor, TilePos};
@@ -73,13 +74,15 @@ pub fn action(
             trace!("[EXECUTED] Wandered to {:?}", position);
             *state = ActionState::Success;
           } else {
-            character.set_next_posture();
-
             let destination = action.path.remove(0);
 
             if world.is_walkable(&destination) {
+              character.set_next_posture();
+              character.set_next_direction(&position, &destination);
+
               position.x = destination.x;
               position.y = destination.y;
+
               color.0 = Color::Rgba {
                 red: 1.0,
                 green: 1.0,
@@ -103,40 +106,3 @@ pub fn action(
     }
   }
 }
-
-/*pub fn directions_system(mut query: Query<(&mut Character, &mut TilePos, &)>) {
-  for (mut actor, position) in query.iter_mut() {
-    if !actor.path.is_empty() {
-      let destination = actor.path[0];
-      actor.direction = if position.x < destination.x {
-        if position.y < destination.y {
-          CharacterDirection::BottomRight
-        } else if position.y > destination.y {
-          CharacterDirection::Bottom
-        } else {
-          CharacterDirection::Right
-        }
-      } else if position.x > destination.x {
-        if position.y < destination.y {
-          CharacterDirection::Top
-        } else if position.y > destination.y {
-          CharacterDirection::TopLeft
-        } else {
-          CharacterDirection::Left
-        }
-      } else if position.y < destination.y {
-        CharacterDirection::TopRight
-      } else {
-        CharacterDirection::BottomLeft
-      };
-    }
-  }
-}
-
-pub fn texture_system(mut query: Query<(&mut Character, &mut TileTextureIndex)>) {
-  for (actor, mut texture_index) in query.iter_mut() {
-    texture_index
-      .set(Box::new(actor.get_texture_index()))
-      .unwrap()
-  }
-}*/

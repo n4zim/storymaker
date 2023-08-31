@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::world::WorldMap;
+use super::world::WorldMap;
 use bevy::utils::HashSet;
 use bevy_ecs_tilemap::tiles::TilePos;
 use pathfinding::prelude::astar;

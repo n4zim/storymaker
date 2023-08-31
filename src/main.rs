@@ -21,12 +21,9 @@ use bevy_ecs_tilemap::{prelude::TilemapRenderSettings, TilemapPlugin};
 
 mod brain;
 mod camera;
-mod characters;
+mod core;
 mod game;
-mod markers;
-mod pathfinding;
 mod ui;
-mod world;
 
 fn main() {
   App::new()

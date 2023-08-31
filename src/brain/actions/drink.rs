@@ -17,8 +17,9 @@
  */
 
 use crate::{
-  brain::states::thirst, game::GameTick, markers, pathfinding::paths,
-  world::WorldMap,
+  brain::states::thirst,
+  core::{markers, pathfinding::paths, world::WorldMap},
+  game::GameTick,
 };
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::{TileColor, TilePos};

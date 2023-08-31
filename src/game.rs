@@ -16,7 +16,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::{characters::Spawner, world::WorldMap};
+use crate::core::{
+  characters::{texture_system, Spawner},
+  world::WorldMap,
+};
 use bevy::prelude::*;
 
 // -----------------------------------------------------------------------------
@@ -31,7 +34,7 @@ impl Plugin for GamePlugin {
       .add_state::<GameSpeed>()
       .add_event::<GameTick>()
       .add_systems(Startup, init)
-      .add_systems(Update, (tick, speed_commands));
+      .add_systems(Update, (tick, speed_commands, texture_system));
   }
 }
 

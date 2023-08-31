@@ -64,6 +64,30 @@ impl Character {
       CharacterPosture::RightFoot => CharacterPosture::Idle,
     };
   }
+
+  pub fn set_next_direction(&mut self, from: &TilePos, to: &TilePos) {
+    self.direction = if from.x < to.x {
+      if from.y < to.y {
+        CharacterDirection::BottomRight
+      } else if from.y > to.y {
+        CharacterDirection::Bottom
+      } else {
+        CharacterDirection::Right
+      }
+    } else if from.x > to.x {
+      if from.y < to.y {
+        CharacterDirection::Top
+      } else if from.y > to.y {
+        CharacterDirection::TopLeft
+      } else {
+        CharacterDirection::Left
+      }
+    } else if from.y < to.y {
+      CharacterDirection::TopRight
+    } else {
+      CharacterDirection::BottomLeft
+    };
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -213,5 +237,17 @@ impl Spawner {
     brain::insert_bundle(&mut entity);
 
     self.storage.set(&position, entity.id());
+  }
+}
+
+// -----------------------------------------------------------------------------
+
+pub fn texture_system(
+  mut query: Query<(&mut Character, &mut TileTextureIndex)>,
+) {
+  for (actor, mut texture_index) in query.iter_mut() {
+    texture_index
+      .set(Box::new(actor.get_texture_index()))
+      .unwrap()
   }
 }
