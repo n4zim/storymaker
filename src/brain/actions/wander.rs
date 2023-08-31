@@ -38,39 +38,36 @@ impl Wander {
 pub fn action(
   mut events: EventReader<GameTick>,
   world: Res<WorldMap>,
-  mut query: Query<(
-    &mut Character,
-    &mut TilePos,
-    &mut TileColor,
-    &mut ActionState,
-    &mut Wander,
-    &ActionSpan,
-  )>,
+  mut query: Query<(&Actor, &mut ActionState, &mut Wander, &ActionSpan)>,
+  mut characters: Query<(&mut Character, &mut TilePos, &mut TileColor)>,
 ) {
   for _clock in events.iter() {
-    for (mut character, mut position, mut color, mut state, mut action, span) in
-      query.iter_mut()
-    {
+    for (actor, mut state, mut action, span) in query.iter_mut() {
       let _guard = span.span().enter();
+
+      let (mut character, mut position, mut color) =
+        characters.get_mut(actor.0).expect("actor has no character");
+
       match *state {
         ActionState::Requested => {
           debug!("[REQUEST] Wander from {:?}", position);
           let mut rng: rand::rngs::ThreadRng = rand::thread_rng();
           loop {
-            if let Some(path) = paths(
-              &world,
-              &position,
-              &vec![TilePos {
-                x: rng.gen_range(0..world.size.x),
-                y: rng.gen_range(0..world.size.y),
-              }],
-            ) {
+            let destination = TilePos {
+              x: rng.gen_range(0..world.size.x),
+              y: rng.gen_range(0..world.size.y),
+            };
+            if !world.is_walkable(&destination) {
+              continue;
+            }
+            if let Some(path) = paths(&world, &position, &vec![destination]) {
               action.path = path;
               *state = ActionState::Executing;
               break;
             }
           }
         }
+
         ActionState::Executing => {
           if action.path.is_empty() {
             trace!("[EXECUTED] Wandered to {:?}", position);
@@ -96,6 +93,7 @@ pub fn action(
             }
           }
         }
+
         ActionState::Cancelled => {
           trace!("[CANCEL] Stopped wandering at {:?}", position);
           *state = ActionState::Failure;

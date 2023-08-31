@@ -41,8 +41,7 @@ fn main() {
         })
         .set(ImagePlugin::default_nearest())
         .set(LogPlugin {
-          filter: "wgpu=error,naga=warn,big_brain=debug,sequence=debug"
-            .to_string(),
+          filter: "wgpu=error,naga=warn".to_string(),
           ..default()
         }),
       TilemapPlugin,

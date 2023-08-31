@@ -22,26 +22,26 @@ use bevy::prelude::*;
 #[derive(Component, Debug)]
 pub struct Thirst {
   pub speed: f32,
-  pub thirst: f32,
+  pub current: f32,
 }
 
 impl Thirst {
-  pub fn new(thirst: f32, speed: f32) -> Self {
-    Self { thirst, speed }
+  pub fn new(current: f32, speed: f32) -> Self {
+    Self { current, speed }
   }
 }
 
-pub fn system(
+pub fn state_system(
   mut events: EventReader<GameTick>,
   mut thirsts: Query<&mut Thirst>,
 ) {
   for _ in events.iter() {
     for mut thirst in &mut thirsts {
-      thirst.thirst += thirst.speed;
-      if thirst.thirst >= 100.0 {
-        thirst.thirst = 100.0;
+      thirst.current += thirst.speed;
+      if thirst.current >= 100.0 {
+        thirst.current = 100.0;
       }
-      trace!("Thirst: {}", thirst.thirst);
+      //println!("Thirst: {}", thirst.current);
     }
   }
 }

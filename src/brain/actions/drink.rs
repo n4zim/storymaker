@@ -47,6 +47,7 @@ pub fn action(
       let _guard = span.span().enter();
       let (position, mut thirst) =
         thirsts.get_mut(*actor).expect("actor has no thirst");
+      //println!("Drink state: {:?} with thirst {:?}", state, thirst.current);
       match *state {
         ActionState::Requested => {
           debug!("[REQUEST] Drinking from {:?}", position);
@@ -65,9 +66,9 @@ pub fn action(
           }
         }
         ActionState::Executing => {
-          thirst.thirst -= action.speed;
-          if thirst.thirst <= 0.0 {
-            thirst.thirst = 0.0;
+          thirst.current -= action.speed;
+          if thirst.current <= 0.0 {
+            thirst.current = 0.0;
             debug!("[EXECUTED] Drank from {:?}", position);
             *state = ActionState::Success;
           }

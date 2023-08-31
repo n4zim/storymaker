@@ -77,6 +77,7 @@ pub fn paths(
   );
 
   //println!("Pathfinding took {}mic", now.elapsed().as_micros());
+  println!("Pathfinding result: {:?}", result);
 
   if let Some((path, _cost)) = result {
     Some(path)

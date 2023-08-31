@@ -31,8 +31,8 @@ impl Plugin for BrainPlugin {
   fn build(&self, app: &mut App) {
     app
       .add_plugins(BigBrainPlugin::new(PreUpdate))
-      .add_systems(First, thirsty::system)
-      .add_systems(Update, thirst::system)
+      .add_systems(First, thirsty::scorer_system)
+      .add_systems(Update, thirst::state_system)
       .add_systems(
         PreUpdate,
         (drink::action, move_to_water::action, wander::action)
@@ -43,9 +43,8 @@ impl Plugin for BrainPlugin {
 
 pub fn insert_bundle(entity: &mut EntityCommands) {
   entity.insert((
-    thirst::Thirst::new(75.0, 1.0),
+    thirst::Thirst::new(0.0, 0.5),
     Thinker::build()
-      .label("Thinker")
       .picker(FirstToScore { threshold: 0.8 })
       .when(
         thirsty::Thirsty,
@@ -54,7 +53,6 @@ pub fn insert_bundle(entity: &mut EntityCommands) {
           .step(move_to_water::MoveToWater::new(1.0))
           .step(drink::Drink::new(1.0)),
       )
-      //.otherwise(wander::Action::new()),
-      .otherwise(move_to_water::MoveToWater::new(1.0)),
+      .otherwise(wander::Wander::new()),
   ));
 }

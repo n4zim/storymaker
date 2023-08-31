@@ -23,13 +23,13 @@ use big_brain::prelude::*;
 #[derive(Component, ScorerBuilder, Clone, Debug)]
 pub struct Thirsty;
 
-pub fn system(
+pub fn scorer_system(
   thirsts: Query<&thirst::Thirst>,
   mut query: Query<(&Actor, &mut Score), With<Thirsty>>,
 ) {
   for (Actor(actor), mut score) in &mut query {
     if let Ok(thirst) = thirsts.get(*actor) {
-      score.set(thirst.thirst / 100.);
+      score.set(thirst.current / 100.);
     }
   }
 }
