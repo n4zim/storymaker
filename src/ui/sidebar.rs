@@ -16,10 +16,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::time::clock::GameClock;
 use bevy::prelude::*;
 use bevy_egui::{
-  egui::{self, Align2, FontId, RichText, Vec2},
+  egui::{self, *},
   EguiContexts,
 };
 
@@ -28,26 +27,41 @@ pub struct CurrentState {
   fake: f32,
 }
 
-pub fn system(
-  mut contexts: EguiContexts,
-  mut state: ResMut<CurrentState>,
-  clock: Res<GameClock>,
-) {
-  egui::SidePanel::right("sidebar").default_width(400.0).show(
-    contexts.ctx_mut(),
-    |ui| {
-      ui.add(egui::Slider::new(&mut state.fake, 0.0..=10.0).text("Fake"));
-    },
-  );
-
-  egui::Window::new("clock")
-    .title_bar(false)
-    .resizable(false)
-    .collapsible(false)
-    .anchor(Align2::LEFT_BOTTOM, Vec2::new(30.0, -30.0))
+pub fn system(mut contexts: EguiContexts, mut state: ResMut<CurrentState>) {
+  egui::SidePanel::right("sidebar")
+    .default_width(400.0)
+    .resizable(true)
     .show(contexts.ctx_mut(), |ui| {
-      ui.label(
-        RichText::new(clock.to_string()).font(FontId::proportional(40.0)),
-      );
+      let height = ui.available_rect_before_wrap().height() / 3.0;
+      ui.label(RichText::new("Actors").size(16.0));
+      ScrollArea::vertical()
+        .id_source("actors")
+        .auto_shrink([false; 2])
+        .max_height(height)
+        .show_rows(
+          ui,
+          ui.text_style_height(&TextStyle::Body),
+          100,
+          |ui, row_range| {
+            for row in row_range {
+              let text = format!("This is row {}/{}", row + 1, 100);
+              ui.label(text);
+            }
+          },
+        );
+
+      ui.separator();
+
+      ui.vertical(|ui| {
+        ui.label(
+          RichText::new(
+            "States
+        ",
+          )
+          .size(16.0),
+        );
+        ui.add(egui::Slider::new(&mut state.fake, 0.0..=10.0).text("Thirst"));
+        ui.add(egui::Slider::new(&mut state.fake, 0.0..=10.0).text("Hunger"));
+      });
     });
 }

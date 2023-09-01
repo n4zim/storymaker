@@ -24,7 +24,9 @@ use bevy::{
   math::Vec3,
   prelude::*,
   render::camera::Camera,
+  window::PrimaryWindow,
 };
+use bevy_egui::EguiContext;
 
 pub fn keyboard_movement(
   time: Res<Time>,
@@ -59,7 +61,15 @@ pub fn keyboard_movement(
 pub fn scroll_zoom(
   mut scroll: EventReader<MouseWheel>,
   mut query: Query<&mut OrthographicProjection, With<Camera>>,
+  mut egui: Query<&mut EguiContext, With<PrimaryWindow>>,
 ) {
+  if let Ok(mut ctx) = egui.get_single_mut() {
+    if ctx.get_mut().is_pointer_over_area() {
+      return;
+    }
+  } else {
+    return;
+  }
   for mut ortho in query.iter_mut() {
     for event in scroll.iter() {
       ortho.scale -= event.y / 10.0;

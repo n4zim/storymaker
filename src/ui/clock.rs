@@ -16,19 +16,22 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::time::clock::GameClock;
 use bevy::prelude::*;
-use bevy_egui::EguiPlugin;
+use bevy_egui::{
+  egui::{self, Align2, FontId, RichText, Vec2},
+  EguiContexts,
+};
 
-mod clock;
-mod sidebar;
-
-pub struct UIPlugin;
-
-impl Plugin for UIPlugin {
-  fn build(&self, app: &mut App) {
-    app
-      .add_plugins(EguiPlugin)
-      .init_resource::<sidebar::CurrentState>()
-      .add_systems(Update, (clock::system, sidebar::system));
-  }
+pub fn system(mut contexts: EguiContexts, clock: Res<GameClock>) {
+  egui::Window::new("clock")
+    .title_bar(false)
+    .resizable(false)
+    .collapsible(false)
+    .anchor(Align2::LEFT_BOTTOM, Vec2::new(30.0, -30.0))
+    .show(contexts.ctx_mut(), |ui| {
+      ui.label(
+        RichText::new(clock.to_string()).font(FontId::proportional(40.0)),
+      );
+    });
 }
