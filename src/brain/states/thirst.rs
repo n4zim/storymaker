@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::game::GameTick;
+use crate::time::tick::GameTick;
 use bevy::prelude::*;
 
 #[derive(Component, Debug)]

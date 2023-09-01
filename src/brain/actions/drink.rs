@@ -18,8 +18,8 @@
 
 use crate::{
   brain::states::thirst,
-  core::{markers, pathfinding::paths, world::WorldMap},
-  game::GameTick,
+  time::tick::GameTick,
+  world::{markers, pathfinding::path_from_to, ressource::WorldMap},
 };
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::{TileColor, TilePos};
@@ -56,7 +56,7 @@ pub fn action(
         ActionState::Requested => {
           debug!("[REQUEST] Drinking from {:?}", position);
           if let Some(path) =
-            paths(&world, &position, &waters.iter().cloned().collect())
+            path_from_to(&world, &position, &waters.iter().cloned().collect())
           {
             if path[path.len() - 2] == *position {
               color.0 = Color::rgb(0.0, 0.0, 1.0);

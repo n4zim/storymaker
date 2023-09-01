@@ -16,37 +16,18 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use bevy::{log::LogPlugin, prelude::*};
+use bevy::prelude::*;
+use bevy_egui::EguiPlugin;
 
-mod brain;
-mod characters;
-mod controls;
-mod time;
-mod ui;
-mod world;
+mod sidebar;
 
-fn main() {
-  App::new()
-    .add_plugins((
-      DefaultPlugins
-        .set(WindowPlugin {
-          primary_window: Some(Window {
-            title: String::from("StoryMaker"),
-            ..Default::default()
-          }),
-          ..default()
-        })
-        .set(ImagePlugin::default_nearest())
-        .set(LogPlugin {
-          filter: "wgpu=error,naga=warn".to_string(),
-          ..default()
-        }),
-      brain::BrainPlugin,
-      characters::CharactersPlugin,
-      controls::ControlsPlugin,
-      time::TimePlugin,
-      ui::UIPlugin,
-      world::WorldPlugin,
-    ))
-    .run();
+pub struct UIPlugin;
+
+impl Plugin for UIPlugin {
+  fn build(&self, app: &mut App) {
+    app
+      .init_resource::<sidebar::CurrentState>()
+      .add_plugins(EguiPlugin)
+      .add_systems(Update, sidebar::system);
+  }
 }

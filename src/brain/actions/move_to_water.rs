@@ -17,8 +17,9 @@
  */
 
 use crate::{
-  core::{characters::Character, markers, pathfinding::paths, world::WorldMap},
-  game::GameTick,
+  characters::component::Character,
+  time::tick::GameTick,
+  world::{markers, pathfinding::path_from_to, ressource::WorldMap},
 };
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::{TileColor, TilePos};
@@ -59,7 +60,7 @@ pub fn action(
         ActionState::Requested => {
           debug!("[REQUEST] Moving to water from {:?}", position);
           if let Some(path) =
-            paths(&world, &position, &waters.iter().cloned().collect())
+            path_from_to(&world, &position, &waters.iter().cloned().collect())
           {
             action.path = path.iter().take(path.len() - 1).cloned().collect();
             color.0 = Color::rgb(0.0, 0.0, 1.0);

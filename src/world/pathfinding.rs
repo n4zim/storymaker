@@ -16,13 +16,13 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use super::world::WorldMap;
+use super::ressource::WorldMap;
 use bevy_ecs_tilemap::tiles::TilePos;
 use pathfinding::prelude::astar;
 
 const DIRECTIONS: [(isize, isize); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
 
-pub fn paths(
+pub fn path_from_to(
   world: &WorldMap,
   start: &TilePos,
   targets: &Vec<TilePos>,

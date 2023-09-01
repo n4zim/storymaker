@@ -16,11 +16,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use super::markers;
+use crate::characters::spawner::CharactersSpawner;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use std::{collections::HashMap, fs::read_to_string};
-
-use super::{characters, markers};
 
 #[derive(Resource)]
 pub struct WorldMap {
@@ -85,7 +85,7 @@ impl WorldMap {
   pub fn render(
     &self,
     commands: &mut Commands,
-    spawner: &mut characters::Spawner,
+    spawner: &mut CharactersSpawner,
   ) {
     let map_type = TilemapType::Isometric(IsoCoordSystem::Diamond);
     for (layer_index, tiles) in self.layers.iter().enumerate() {

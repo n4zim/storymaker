@@ -16,13 +16,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::brain;
 use bevy::prelude::*;
-use bevy_ecs_tilemap::prelude::*;
 use bevy_ecs_tilemap::tiles::{TilePos, TileTextureIndex};
-use rand::Rng;
-
-// -----------------------------------------------------------------------------
 
 #[derive(Component)]
 pub struct Character {
@@ -33,7 +28,7 @@ pub struct Character {
 }
 
 impl Character {
-  fn new(gender: CharacterGender) -> Character {
+  pub fn new(gender: CharacterGender) -> Character {
     Character {
       gender,
       direction: CharacterDirection::Bottom,
@@ -42,7 +37,7 @@ impl Character {
     }
   }
 
-  fn get_texture_index(&self) -> TileTextureIndex {
+  pub fn get_texture_index(&self) -> TileTextureIndex {
     TileTextureIndex(
       8 + self.gender.to_u32() * 32
         + self.direction.to_u32()
@@ -90,8 +85,6 @@ impl Character {
   }
 }
 
-// -----------------------------------------------------------------------------
-
 pub enum CharacterGender {
   Male,
   Female,
@@ -99,7 +92,7 @@ pub enum CharacterGender {
 }
 
 impl CharacterGender {
-  fn new_with_index(index: i32) -> Option<Self> {
+  pub fn new_with_index(index: i32) -> Option<Self> {
     match index {
       2 => Some(Self::Male),
       1 => Some(Self::Female),
@@ -156,98 +149,5 @@ impl CharacterPosture {
       CharacterPosture::Idle => 1,
       CharacterPosture::RightFoot => 2,
     }
-  }
-}
-
-#[derive(Resource)]
-pub struct Spawner {
-  storage: TileStorage,
-  tile_id: TilemapId,
-}
-
-// -----------------------------------------------------------------------------
-
-impl Spawner {
-  pub fn new(
-    size: TilemapSize,
-    grid_size: TilemapGridSize,
-    commands: &mut Commands,
-    asset_server: &Res<AssetServer>,
-  ) -> Spawner {
-    let texture =
-      TilemapTexture::Single(asset_server.load(
-        "sprites/AlexDreamer/Small-8-Direction-Characters_by_AxulArt.png",
-      ));
-
-    let storage = TileStorage::empty(size);
-    let entity_id = commands.spawn_empty().id();
-
-    let map_type = TilemapType::Isometric(IsoCoordSystem::Diamond);
-
-    commands.entity(entity_id).insert(TilemapBundle {
-      size,
-      grid_size,
-      map_type,
-      tile_size: TilemapTileSize { x: 16.0, y: 22.0 },
-      storage: storage.clone(),
-      texture: texture.clone(),
-      transform: get_tilemap_center_transform(
-        &size, &grid_size, &map_type, 5.0,
-      ),
-      ..Default::default()
-    });
-
-    Spawner {
-      storage,
-      tile_id: TilemapId(entity_id),
-    }
-  }
-
-  pub fn insert_with_random_gender(
-    &mut self,
-    commands: &mut Commands,
-    position: TilePos,
-  ) {
-    let index = rand::thread_rng().gen_range(0..=2);
-    if let Some(gender) = CharacterGender::new_with_index(index) {
-      self.insert(commands, position, gender);
-    }
-  }
-
-  fn insert(
-    &mut self,
-    commands: &mut Commands,
-    position: TilePos,
-    gender: CharacterGender,
-  ) {
-    let character = Character::new(gender);
-
-    let texture_index = character.get_texture_index();
-
-    let mut entity = commands.spawn((
-      character,
-      TileBundle {
-        position,
-        tilemap_id: self.tile_id,
-        texture_index,
-        ..Default::default()
-      },
-    ));
-
-    brain::insert_bundle(&mut entity);
-
-    self.storage.set(&position, entity.id());
-  }
-}
-
-// -----------------------------------------------------------------------------
-
-pub fn texture_system(
-  mut query: Query<(&mut Character, &mut TileTextureIndex)>,
-) {
-  for (actor, mut texture_index) in query.iter_mut() {
-    texture_index
-      .set(Box::new(actor.get_texture_index()))
-      .unwrap()
   }
 }

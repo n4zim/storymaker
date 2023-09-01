@@ -16,37 +16,27 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use bevy::{log::LogPlugin, prelude::*};
+use self::component::Character;
+use bevy::prelude::*;
+use bevy_ecs_tilemap::tiles::TileTextureIndex;
 
-mod brain;
-mod characters;
-mod controls;
-mod time;
-mod ui;
-mod world;
+pub mod component;
+pub mod spawner;
 
-fn main() {
-  App::new()
-    .add_plugins((
-      DefaultPlugins
-        .set(WindowPlugin {
-          primary_window: Some(Window {
-            title: String::from("StoryMaker"),
-            ..Default::default()
-          }),
-          ..default()
-        })
-        .set(ImagePlugin::default_nearest())
-        .set(LogPlugin {
-          filter: "wgpu=error,naga=warn".to_string(),
-          ..default()
-        }),
-      brain::BrainPlugin,
-      characters::CharactersPlugin,
-      controls::ControlsPlugin,
-      time::TimePlugin,
-      ui::UIPlugin,
-      world::WorldPlugin,
-    ))
-    .run();
+pub struct CharactersPlugin;
+
+impl Plugin for CharactersPlugin {
+  fn build(&self, app: &mut App) {
+    app.add_systems(Update, textures_system);
+  }
+}
+
+pub fn textures_system(
+  mut query: Query<(&mut Character, &mut TileTextureIndex)>,
+) {
+  for (actor, mut texture_index) in query.iter_mut() {
+    texture_index
+      .set(Box::new(actor.get_texture_index()))
+      .unwrap()
+  }
 }

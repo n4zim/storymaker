@@ -16,37 +16,13 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use bevy::{log::LogPlugin, prelude::*};
+use bevy::prelude::*;
 
-mod brain;
-mod characters;
-mod controls;
-mod time;
-mod ui;
-mod world;
-
-fn main() {
-  App::new()
-    .add_plugins((
-      DefaultPlugins
-        .set(WindowPlugin {
-          primary_window: Some(Window {
-            title: String::from("StoryMaker"),
-            ..Default::default()
-          }),
-          ..default()
-        })
-        .set(ImagePlugin::default_nearest())
-        .set(LogPlugin {
-          filter: "wgpu=error,naga=warn".to_string(),
-          ..default()
-        }),
-      brain::BrainPlugin,
-      characters::CharactersPlugin,
-      controls::ControlsPlugin,
-      time::TimePlugin,
-      ui::UIPlugin,
-      world::WorldPlugin,
-    ))
-    .run();
+#[derive(Event)]
+pub struct GameTick {
+  pub day: i32,
+  pub hour: u32,
+  pub minute: u32,
+  pub second: u32,
+  pub total: u32,
 }

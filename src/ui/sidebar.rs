@@ -16,25 +16,19 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::game::GameClock;
+use crate::time::clock::GameClock;
 use bevy::prelude::*;
 use bevy_egui::{
   egui::{self, Align2, FontId, RichText, Vec2},
-  EguiContexts, EguiPlugin,
+  EguiContexts,
 };
 
-pub struct UIPlugin;
-
-impl Plugin for UIPlugin {
-  fn build(&self, app: &mut App) {
-    app
-      .init_resource::<CurrentState>()
-      .add_plugins(EguiPlugin)
-      .add_systems(Update, interface);
-  }
+#[derive(Default, Resource)]
+pub struct CurrentState {
+  fake: f32,
 }
 
-fn interface(
+pub fn system(
   mut contexts: EguiContexts,
   mut state: ResMut<CurrentState>,
   clock: Res<GameClock>,
@@ -56,9 +50,4 @@ fn interface(
         RichText::new(clock.to_string()).font(FontId::proportional(40.0)),
       );
     });
-}
-
-#[derive(Default, Resource)]
-struct CurrentState {
-  fake: f32,
 }

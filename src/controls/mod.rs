@@ -16,7 +16,24 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-pub mod characters;
-pub mod markers;
-pub mod pathfinding;
-pub mod world;
+use self::{camera::*, speed::*};
+use bevy::prelude::*;
+
+mod camera;
+mod speed;
+
+pub struct ControlsPlugin;
+
+impl Plugin for ControlsPlugin {
+  fn build(&self, app: &mut App) {
+    app.add_systems(
+      Update,
+      (
+        keyboard_movement,
+        scroll_zoom,
+        middle_click_movement,
+        speed_commands,
+      ),
+    );
+  }
+}

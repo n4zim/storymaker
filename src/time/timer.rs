@@ -16,37 +16,13 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use bevy::{log::LogPlugin, prelude::*};
+use bevy::prelude::*;
 
-mod brain;
-mod characters;
-mod controls;
-mod time;
-mod ui;
-mod world;
+#[derive(Resource)]
+pub struct GameTimer(pub Timer);
 
-fn main() {
-  App::new()
-    .add_plugins((
-      DefaultPlugins
-        .set(WindowPlugin {
-          primary_window: Some(Window {
-            title: String::from("StoryMaker"),
-            ..Default::default()
-          }),
-          ..default()
-        })
-        .set(ImagePlugin::default_nearest())
-        .set(LogPlugin {
-          filter: "wgpu=error,naga=warn".to_string(),
-          ..default()
-        }),
-      brain::BrainPlugin,
-      characters::CharactersPlugin,
-      controls::ControlsPlugin,
-      time::TimePlugin,
-      ui::UIPlugin,
-      world::WorldPlugin,
-    ))
-    .run();
+impl Default for GameTimer {
+  fn default() -> Self {
+    Self(Timer::from_seconds(1.0 / 60.0, TimerMode::Repeating))
+  }
 }

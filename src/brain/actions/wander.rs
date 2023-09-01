@@ -17,8 +17,9 @@
  */
 
 use crate::{
-  core::{characters::Character, pathfinding::paths, world::WorldMap},
-  game::GameTick,
+  characters::component::Character,
+  time::tick::GameTick,
+  world::{pathfinding::path_from_to, ressource::WorldMap},
 };
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::{TileColor, TilePos};
@@ -61,7 +62,9 @@ pub fn action(
             if !world.is_walkable(&destination) {
               continue;
             }
-            if let Some(path) = paths(&world, &position, &vec![destination]) {
+            if let Some(path) =
+              path_from_to(&world, &position, &vec![destination])
+            {
               action.path = path;
               *state = ActionState::Executing;
               break;

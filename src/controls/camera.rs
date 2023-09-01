@@ -26,22 +26,7 @@ use bevy::{
   render::camera::Camera,
 };
 
-pub struct CameraPlugin;
-
-impl Plugin for CameraPlugin {
-  fn build(&self, app: &mut App) {
-    app.add_systems(Startup, startup).add_systems(
-      Update,
-      (keyboard_movement, scroll_zoom, middle_click_movement),
-    );
-  }
-}
-
-fn startup(mut commands: Commands) {
-  commands.spawn(Camera2dBundle::default());
-}
-
-fn keyboard_movement(
+pub fn keyboard_movement(
   time: Res<Time>,
   keyboard_input: Res<Input<KeyCode>>,
   mut query: Query<&mut Transform, With<Camera>>,
@@ -71,7 +56,7 @@ fn keyboard_movement(
   }
 }
 
-fn scroll_zoom(
+pub fn scroll_zoom(
   mut scroll: EventReader<MouseWheel>,
   mut query: Query<&mut OrthographicProjection, With<Camera>>,
 ) {
@@ -87,7 +72,7 @@ fn scroll_zoom(
   }
 }
 
-fn middle_click_movement(
+pub fn middle_click_movement(
   mut mouse_motion_events: EventReader<MouseMotion>,
   input: Res<Input<MouseButton>>,
   mut query: Query<&mut Transform, With<Camera>>,
