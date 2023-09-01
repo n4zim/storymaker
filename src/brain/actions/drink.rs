@@ -18,7 +18,7 @@
 
 use crate::{
   brain::states::thirst,
-  time::tick::GameTick,
+  time::event::GameTick,
   world::{markers, pathfinding::path_from_to, ressource::WorldMap},
 };
 use bevy::prelude::*;

@@ -18,7 +18,7 @@
 
 use crate::{
   characters::component::Character,
-  time::tick::GameTick,
+  time::event::GameTick,
   world::{pathfinding::path_from_to, ressource::WorldMap},
 };
 use bevy::prelude::*;

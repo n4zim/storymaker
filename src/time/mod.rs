@@ -17,13 +17,13 @@
  */
 
 use self::{
-  clock::GameClock, speed::GameSpeed, tick::GameTick, timer::GameTimer,
+  clock::GameClock, event::GameTick, speed::GameSpeed, timer::GameTimer,
 };
 use bevy::prelude::*;
 
 pub mod clock;
+pub mod event;
 pub mod speed;
-pub mod tick;
 pub mod timer;
 
 pub struct TimePlugin;
@@ -31,15 +31,15 @@ pub struct TimePlugin;
 impl Plugin for TimePlugin {
   fn build(&self, app: &mut App) {
     app
-      .insert_resource(GameClock::default())
       .insert_resource(GameTimer::default())
+      .insert_resource(GameClock::default())
       .add_state::<GameSpeed>()
       .add_event::<GameTick>()
-      .add_systems(Update, system);
+      .add_systems(Update, tick);
   }
 }
 
-fn system(
+fn tick(
   mut game_time: ResMut<GameTimer>,
   mut game_clock: ResMut<GameClock>,
   time: Res<Time>,

@@ -35,11 +35,11 @@ impl Plugin for WorldPlugin {
         render_chunk_size: UVec2::new(3, 1),
         y_sort: true,
       })
-      .add_systems(Startup, system);
+      .add_systems(Startup, render);
   }
 }
 
-fn system(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn render(mut commands: Commands, asset_server: Res<AssetServer>) {
   commands.spawn(Camera2dBundle::default());
 
   let world = WorldMap::new(&asset_server, "island1");

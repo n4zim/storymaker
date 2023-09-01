@@ -16,7 +16,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use self::{camera::*, speed::*};
 use bevy::prelude::*;
 
 mod camera;
@@ -29,10 +28,10 @@ impl Plugin for ControlsPlugin {
     app.add_systems(
       Update,
       (
-        keyboard_movement,
-        scroll_zoom,
-        middle_click_movement,
-        speed_commands,
+        camera::keyboard_movement,
+        camera::scroll_zoom,
+        camera::middle_click_movement,
+        speed::speed_commands,
       ),
     );
   }

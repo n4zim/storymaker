@@ -26,8 +26,8 @@ pub struct UIPlugin;
 impl Plugin for UIPlugin {
   fn build(&self, app: &mut App) {
     app
-      .init_resource::<sidebar::CurrentState>()
       .add_plugins(EguiPlugin)
+      .init_resource::<sidebar::CurrentState>()
       .add_systems(Update, sidebar::system);
   }
 }
