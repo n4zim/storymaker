@@ -16,21 +16,22 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use self::ressource::WorldMap;
+use self::map::WorldMap;
 use crate::characters::spawner::CharactersSpawner;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::{prelude::TilemapRenderSettings, TilemapPlugin};
+use bevy_turborand::prelude::*;
 
+pub mod map;
 pub mod markers;
 pub mod pathfinding;
-pub mod ressource;
 
 pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
   fn build(&self, app: &mut App) {
     app
-      .add_plugins(TilemapPlugin)
+      .add_plugins((TilemapPlugin, RngPlugin::default()))
       .insert_resource(TilemapRenderSettings {
         render_chunk_size: UVec2::new(3, 1),
         y_sort: true,
@@ -39,7 +40,11 @@ impl Plugin for WorldPlugin {
   }
 }
 
-fn render(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn render(
+  mut commands: Commands,
+  asset_server: Res<AssetServer>,
+  mut global_rng: ResMut<GlobalRng>,
+) {
   commands.spawn(Camera2dBundle::default());
 
   let world = WorldMap::new(&asset_server, "island1");
@@ -51,7 +56,7 @@ fn render(mut commands: Commands, asset_server: Res<AssetServer>) {
     &asset_server,
   );
 
-  world.render(&mut commands, &mut spawner);
+  world.render(&mut commands, &mut spawner, &mut global_rng);
 
   commands.insert_resource(world);
   commands.insert_resource(spawner);

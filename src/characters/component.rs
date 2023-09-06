@@ -21,6 +21,8 @@ use bevy_ecs_tilemap::tiles::{TilePos, TileTextureIndex};
 
 #[derive(Component)]
 pub struct Character {
+  firstname: String,
+  lastname: String,
   gender: CharacterGender,
   direction: CharacterDirection,
   posture: CharacterPosture,
@@ -28,8 +30,14 @@ pub struct Character {
 }
 
 impl Character {
-  pub fn new(gender: CharacterGender) -> Character {
+  pub fn new(
+    firstname: String,
+    lastname: String,
+    gender: CharacterGender,
+  ) -> Character {
     Character {
+      firstname,
+      lastname,
       gender,
       direction: CharacterDirection::Bottom,
       posture: CharacterPosture::Idle,
@@ -85,6 +93,7 @@ impl Character {
   }
 }
 
+#[derive(PartialEq, Eq, Hash)]
 pub enum CharacterGender {
   Male,
   Female,

@@ -21,12 +21,17 @@ use crate::brain;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use bevy_ecs_tilemap::tiles::TilePos;
+use bevy_turborand::GlobalRng;
 use rand::Rng;
+use std::collections::HashMap;
+use std::fs::read_to_string;
 
 #[derive(Resource)]
 pub struct CharactersSpawner {
   storage: TileStorage,
   tile_id: TilemapId,
+  firstnames: HashMap<CharacterGender, Vec<String>>,
+  lastnames: Vec<String>,
 }
 
 impl CharactersSpawner {
@@ -59,9 +64,48 @@ impl CharactersSpawner {
       ..Default::default()
     });
 
+    let mut males = Vec::new();
+    for name in read_to_string("assets/names/males.txt")
+      .unwrap()
+      .split("\n")
+    {
+      if name.len() == 0 {
+        continue;
+      }
+      males.push(name.to_string());
+    }
+
+    let mut females = Vec::new();
+    for name in read_to_string("assets/names/females.txt")
+      .unwrap()
+      .split("\n")
+    {
+      if name.len() == 0 {
+        continue;
+      }
+      females.push(name.to_string());
+    }
+
+    let mut lastnames = Vec::new();
+    for name in read_to_string("assets/names/family.txt")
+      .unwrap()
+      .split("\n")
+    {
+      if name.len() == 0 {
+        continue;
+      }
+      lastnames.push(name.to_string());
+    }
+
+    let mut firstnames = HashMap::new();
+    firstnames.insert(CharacterGender::Male, males);
+    firstnames.insert(CharacterGender::Female, females);
+
     CharactersSpawner {
       storage,
       tile_id: TilemapId(entity_id),
+      firstnames,
+      lastnames,
     }
   }
 
@@ -69,10 +113,11 @@ impl CharactersSpawner {
     &mut self,
     commands: &mut Commands,
     position: TilePos,
+    rng: &mut GlobalRng,
   ) {
     let index = rand::thread_rng().gen_range(0..=2);
     if let Some(gender) = CharacterGender::new_with_index(index) {
-      self.insert(commands, position, gender);
+      self.insert(commands, position, gender, rng);
     }
   }
 
@@ -81,7 +126,14 @@ impl CharactersSpawner {
     commands: &mut Commands,
     position: TilePos,
     gender: CharacterGender,
+    rng: &mut GlobalRng,
   ) {
+    let names = self.firstnames.get(&gender).unwrap();
+    let firstname = names
+      .get(rng.gen_range(0..names.len()))
+      .unwrap()
+      .to_string();
+
     let character = Character::new(gender);
 
     let texture_index = character.get_texture_index();

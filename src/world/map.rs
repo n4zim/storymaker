@@ -20,6 +20,7 @@ use super::markers;
 use crate::characters::spawner::CharactersSpawner;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
+use bevy_turborand::GlobalRng;
 use std::{collections::HashMap, fs::read_to_string};
 
 #[derive(Resource)]
@@ -86,6 +87,7 @@ impl WorldMap {
     &self,
     commands: &mut Commands,
     spawner: &mut CharactersSpawner,
+    rng: &mut GlobalRng,
   ) {
     let map_type = TilemapType::Isometric(IsoCoordSystem::Diamond);
     for (layer_index, tiles) in self.layers.iter().enumerate() {
@@ -112,7 +114,7 @@ impl WorldMap {
             }
             storage.set(&position, entity.id());
             if tile == &WorldMapTile::House {
-              spawner.insert_with_random_gender(commands, position);
+              spawner.insert_with_random_gender(commands, position, rng);
             }
           }
         }

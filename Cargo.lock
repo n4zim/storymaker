@@ -803,6 +803,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_turborand"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d148d7fb5d2d4cda8f290174a837b4bab3b8ce9cfdf6f806c61d642ed5cf5bc5"
+dependencies = [
+ "bevy",
+ "serde",
+ "turborand",
+]
+
+[[package]]
 name = "bevy_utils"
 version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2517,6 +2528,7 @@ dependencies = [
  "bevy",
  "bevy_ecs_tilemap 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bevy_egui",
+ "bevy_turborand",
  "big-brain",
  "pathfinding",
  "rand",
@@ -2732,6 +2744,17 @@ name = "ttf-parser"
 version = "0.19.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a464a4b34948a5f67fddd2b823c62d9d92e44be75058b99939eae6c5b6960b33"
+
+[[package]]
+name = "turborand"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e28d61f1c96db8c016037a77961fa5da84fc3a57fe69a15283ace0ab1647bac0"
+dependencies = [
+ "getrandom",
+ "instant",
+ "serde",
+]
 
 [[package]]
 name = "unicode-bidi"

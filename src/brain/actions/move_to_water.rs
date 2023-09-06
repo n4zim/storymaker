@@ -19,7 +19,7 @@
 use crate::{
   characters::component::Character,
   time::event::GameTick,
-  world::{markers, pathfinding::path_from_to, ressource::WorldMap},
+  world::{map::WorldMap, markers, pathfinding::path_from_to},
 };
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::{TileColor, TilePos};

@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use super::ressource::WorldMap;
+use super::map::WorldMap;
 use bevy_ecs_tilemap::tiles::TilePos;
 use pathfinding::prelude::astar;
 
