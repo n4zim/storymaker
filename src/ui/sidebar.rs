@@ -26,7 +26,7 @@ use egui_extras::{Column, TableBuilder};
 
 #[derive(Default, Resource)]
 pub struct CurrentState {
-  selected_character: Option<Entity>,
+  selected_character: Option<String>,
   fake: f32,
 }
 
@@ -57,7 +57,15 @@ pub fn system(
             .collect::<Vec<String>>();
           actors.sort();
           for actor in actors.iter() {
-            ui.label(actor);
+            let label = selectable_label(ui, actor, if let Some(selected) = &state.selected_character {
+              selected == actor
+            } else {
+              false
+            });
+            if label.clicked() {
+              println!("Selected {}", actor);
+              state.selected_character = Some(actor.clone());
+            }
           }
         });
 
@@ -75,7 +83,6 @@ pub fn system(
             .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
             .column(Column::auto())
             .column(Column::auto())
-            .column(Column::auto())
             .column(Column::remainder())
             .min_scrolled_height(0.0)
             .header(20.0, |mut header| {
@@ -86,10 +93,7 @@ pub fn system(
                 ui.strong("Time");
               });
               header.col(|ui| {
-                ui.strong("Type");
-              });
-              header.col(|ui| {
-                ui.strong("Action");
+                ui.strong("Description");
               });
             })
             .body(|mut body| {
@@ -100,9 +104,6 @@ pub fn system(
                   });
                   row.col(|ui| {
                     ui.label("23:46:12");
-                  });
-                  row.col(|ui| {
-                    ui.label("Move");
                   });
                   row.col(|ui| {
                     ui.label("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae nisl eget nunc aliquam aliqu etiam.");
@@ -123,4 +124,15 @@ pub fn system(
           ui.add(egui::Slider::new(&mut state.fake, 0.0..=10.0).text("Hunger"));
         });
     });
+}
+
+fn selectable_label(ui: &mut Ui, text: &str, selected: bool) -> Response {
+  let text = if selected {
+    RichText::new(text)
+      .strong()
+      .color(Color32::from_rgb(0, 0, 0))
+  } else {
+    RichText::new(text)
+  };
+  ui.label(text)
 }

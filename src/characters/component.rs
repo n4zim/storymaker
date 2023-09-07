@@ -16,6 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::time::event::GameTick;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::{TilePos, TileTextureIndex};
 
@@ -27,6 +28,7 @@ pub struct Character {
   direction: CharacterDirection,
   posture: CharacterPosture,
   posture_reverse: bool,
+  history: Vec<CharacterHistory>,
 }
 
 impl Character {
@@ -42,6 +44,7 @@ impl Character {
       direction: CharacterDirection::Bottom,
       posture: CharacterPosture::Idle,
       posture_reverse: false,
+      history: Vec::new(),
     }
   }
 
@@ -176,4 +179,9 @@ impl CharacterPosture {
       CharacterPosture::RightFoot => 2,
     }
   }
+}
+
+struct CharacterHistory {
+  tick: GameTick,
+  description: String,
 }
