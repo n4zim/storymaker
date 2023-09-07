@@ -95,6 +95,10 @@ impl Character {
   pub fn get_name(&self) -> String {
     format!("{} {}", self.firstname, self.lastname)
   }
+
+  pub fn get_gender(&self) -> String {
+    self.gender.to_string()
+  }
 }
 
 #[derive(PartialEq, Eq, Hash, Debug)]
@@ -120,6 +124,15 @@ impl CharacterGender {
       Self::Female => 1,
       Self::Other => 0,
     }
+  }
+
+  fn to_string(&self) -> String {
+    match self {
+      Self::Male => "male",
+      Self::Female => "female",
+      Self::Other => "other",
+    }
+    .to_string()
   }
 }
 
