@@ -22,12 +22,19 @@ use bevy_egui::{
   EguiContexts,
 };
 
+use crate::characters::component::Character;
+
 #[derive(Default, Resource)]
 pub struct CurrentState {
   fake: f32,
 }
 
-pub fn system(mut contexts: EguiContexts, mut state: ResMut<CurrentState>) {
+pub fn system(
+  mut contexts: EguiContexts,
+  mut state: ResMut<CurrentState>,
+  mut actors: Query<&mut Character>,
+) {
+  let actors = actors.iter_mut().collect::<Vec<_>>();
   egui::SidePanel::right("sidebar")
     .default_width(400.0)
     .resizable(true)
@@ -41,11 +48,11 @@ pub fn system(mut contexts: EguiContexts, mut state: ResMut<CurrentState>) {
         .show_rows(
           ui,
           ui.text_style_height(&TextStyle::Body),
-          100,
+          actors.len(),
           |ui, row_range| {
             for row in row_range {
-              let text = format!("This is row {}/{}", row + 1, 100);
-              ui.label(text);
+              let actor = actors.get(row).unwrap();
+              ui.label(actor.get_name());
             }
           },
         );

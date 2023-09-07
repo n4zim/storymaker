@@ -114,7 +114,7 @@ impl WorldMap {
             }
             storage.set(&position, entity.id());
             if tile == &WorldMapTile::House {
-              spawner.insert_with_random_gender(commands, position, rng);
+              spawner.insert(commands, position, rng);
             }
           }
         }

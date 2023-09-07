@@ -21,8 +21,7 @@ use crate::brain;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use bevy_ecs_tilemap::tiles::TilePos;
-use bevy_turborand::GlobalRng;
-use rand::Rng;
+use bevy_turborand::prelude::*;
 use std::collections::HashMap;
 use std::fs::read_to_string;
 
@@ -109,32 +108,38 @@ impl CharactersSpawner {
     }
   }
 
-  pub fn insert_with_random_gender(
+  pub fn insert(
     &mut self,
     commands: &mut Commands,
     position: TilePos,
-    rng: &mut GlobalRng,
+    global_rng: &mut GlobalRng,
   ) {
-    let index = rand::thread_rng().gen_range(0..=2);
-    if let Some(gender) = CharacterGender::new_with_index(index) {
-      self.insert(commands, position, gender, rng);
-    }
-  }
+    let mut rng_component = RngComponent::from(global_rng);
+    let rng = rng_component.get_mut();
 
-  fn insert(
-    &mut self,
-    commands: &mut Commands,
-    position: TilePos,
-    gender: CharacterGender,
-    rng: &mut GlobalRng,
-  ) {
-    let names = self.firstnames.get(&gender).unwrap();
-    let firstname = names
-      .get(rng.gen_range(0..names.len()))
+    let gender = CharacterGender::new_with_index(rng.i32(0..2)).unwrap();
+
+    let names = self
+      .firstnames
+      .get(match gender {
+        CharacterGender::Other => {
+          if rng.bool() {
+            &CharacterGender::Male
+          } else {
+            &CharacterGender::Female
+          }
+        }
+        _ => &gender,
+      })
+      .unwrap();
+    let firstname = names.get(rng.usize(0..names.len())).unwrap().to_string();
+    let lastname = self
+      .lastnames
+      .get(rng.usize(0..self.lastnames.len()))
       .unwrap()
       .to_string();
 
-    let character = Character::new(gender);
+    let character = Character::new(firstname, lastname, gender);
 
     let texture_index = character.get_texture_index();
 
@@ -146,6 +151,7 @@ impl CharactersSpawner {
         texture_index,
         ..Default::default()
       },
+      rng_component,
     ));
 
     brain::insert_bundle(&mut entity);

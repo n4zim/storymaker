@@ -23,8 +23,8 @@ use crate::{
 };
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::{TileColor, TilePos};
+use bevy_turborand::prelude::*;
 use big_brain::prelude::*;
-use rand::Rng;
 
 #[derive(Component, ActionBuilder, Clone, Debug)]
 pub struct Wander {
@@ -41,23 +41,27 @@ pub fn action(
   mut events: EventReader<GameTick>,
   world: Res<WorldMap>,
   mut query: Query<(&Actor, &mut ActionState, &mut Wander, &ActionSpan)>,
-  mut characters: Query<(&mut Character, &mut TilePos, &mut TileColor)>,
+  mut characters: Query<(
+    &mut Character,
+    &mut TilePos,
+    &mut TileColor,
+    &mut RngComponent,
+  )>,
 ) {
   for _clock in events.iter() {
     for (actor, mut state, mut action, span) in query.iter_mut() {
       let _guard = span.span().enter();
 
-      let (mut character, mut position, mut color) =
+      let (mut character, mut position, mut color, mut rng) =
         characters.get_mut(actor.0).expect("actor has no character");
 
       match *state {
         ActionState::Requested => {
           debug!("[REQUEST] Wander from {:?}", position);
-          let mut rng: rand::rngs::ThreadRng = rand::thread_rng();
           loop {
             let destination = TilePos {
-              x: rng.gen_range(0..world.size.x),
-              y: rng.gen_range(0..world.size.y),
+              x: rng.u32(0..world.size.x),
+              y: rng.u32(0..world.size.y),
             };
             if !world.is_walkable(&destination) {
               continue;

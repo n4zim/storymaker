@@ -91,9 +91,13 @@ impl Character {
       CharacterDirection::BottomLeft
     };
   }
+
+  pub fn get_name(&self) -> String {
+    format!("{} {}", self.firstname, self.lastname)
+  }
 }
 
-#[derive(PartialEq, Eq, Hash)]
+#[derive(PartialEq, Eq, Hash, Debug)]
 pub enum CharacterGender {
   Male,
   Female,
