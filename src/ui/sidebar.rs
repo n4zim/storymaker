@@ -26,7 +26,7 @@ use bevy_egui::{
   EguiContexts,
 };
 use egui_extras::{Column, TableBuilder};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 
 #[derive(Default, Resource)]
 pub struct CurrentState {
@@ -38,13 +38,24 @@ pub fn system(
   mut state: ResMut<CurrentState>,
   mut characters: Query<(&Character, &History, &mut Thirst)>,
 ) {
-  let mut characters_names = BTreeMap::<String, &Character>::new();
-  let mut characters_ids =
-    HashMap::<u32, (&Character, &History, &mut Thirst)>::new();
+  let mut current_character: Option<&Character> = None;
+  let mut current_history: Option<&History> = None;
+  let mut current_thirst: Option<Mut<'_, Thirst>> = None;
 
-  for (character, history, mut thirst) in &mut characters {
-    characters_names.insert(character.get_name(), character);
-    characters_ids.insert(character.id, (character, history, &mut thirst));
+  let mut characters_list = BTreeMap::<String, u32>::new();
+
+  for (character, history, thirst) in &mut characters {
+    characters_list.insert(
+      format!("{} ({})", character.get_name(), character.get_gender()),
+      character.id,
+    );
+    if let Some(selected) = state.selected_character {
+      if selected == character.id {
+        current_character.replace(character);
+        current_history.replace(history);
+        current_thirst.replace(thirst);
+      }
+    }
   }
 
   egui::SidePanel::right("sidebar")
@@ -59,33 +70,27 @@ pub fn system(
         .auto_shrink([false; 2])
         .max_height(height)
         .show(ui, |ui| {
-          for (name, character) in characters_names.iter() {
+          for (name, id) in characters_list.iter() {
             let selected = if let Some(current) = state.selected_character {
-              current == character.id
+              current == *id
             } else {
               false
             };
 
-            let label = selectable_label(
-              ui,
-              format!("{} ({})", name, character.get_gender()),
-              selected,
-            );
+            let label = selectable_label(ui, name.clone(), selected);
 
             if label.clicked() {
               state.selected_character =
-                if selected { None } else { Some(character.id) };
+                if selected { None } else { Some(*id) };
             }
           }
         });
 
-      let Some(selected) = state.selected_character else {
+      if current_character.is_none() || current_history.is_none() {
         return;
       };
 
-      let (character, history, mut thirst) =
-        characters_ids.get_mut(&selected).unwrap();
-      let character_name = character.get_name();
+      let character_name = current_character.unwrap().get_name();
 
       ui.separator();
 
@@ -119,7 +124,7 @@ pub fn system(
               });
             })
             .body(|mut body| {
-              for item in history.0.iter() {
+              for item in current_history.unwrap().0.iter() {
                 body.row(10.0, |mut row| {
                   row.col(|ui| {
                     ui.label(item.tick.day.to_string());
@@ -138,6 +143,10 @@ pub fn system(
             });
         });
 
+      if current_thirst.is_none() {
+        return;
+      };
+
       ui.separator();
 
       ui.label(
@@ -150,7 +159,11 @@ pub fn system(
         .auto_shrink([false; 2])
         .show(ui, |ui| {
           ui.add(
-            egui::Slider::new(&mut thirst.current, 0.0..=10.0).text("Thirst"),
+            egui::Slider::new(
+              &mut current_thirst.unwrap().current,
+              0.0..=100.0,
+            )
+            .text("Thirst"),
           );
         });
     });

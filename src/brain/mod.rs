@@ -43,7 +43,7 @@ impl Plugin for BrainPlugin {
 
 pub fn insert_bundle(entity: &mut EntityCommands) {
   entity.insert((
-    thirst::Thirst::new(0.0, 0.5),
+    thirst::Thirst::new(0.0, 0.1),
     Thinker::build()
       .picker(FirstToScore { threshold: 0.8 })
       .when(
