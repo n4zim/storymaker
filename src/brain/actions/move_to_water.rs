@@ -18,7 +18,7 @@
 
 use crate::{
   characters::component::Character,
-  time::event::GameTick,
+  time::{event::GameTick, history::History},
   world::{map::WorldMap, markers, pathfinding::path_from_to},
 };
 use bevy::prelude::*;
@@ -45,15 +45,15 @@ pub fn action(
   world: Res<WorldMap>,
   mut query: Query<(&Actor, &mut ActionState, &mut MoveToWater, &ActionSpan)>,
   mut positions: Query<
-    (&mut TilePos, &mut TileColor),
+    (&mut TilePos, &mut TileColor, &mut History),
     (Without<markers::Water>, With<Character>),
   >,
   waters: Query<&TilePos, With<markers::Water>>,
 ) {
-  for _clock in events.iter() {
+  for tick in events.iter() {
     for (actor, mut state, mut action, span) in &mut query {
       let _guard = span.span().enter();
-      let (mut position, mut color) =
+      let (mut position, mut color, mut history) =
         positions.get_mut(actor.0).expect("actor has no position");
       //println!("MoveToWater state: {:?}", state);
       match *state {
@@ -65,6 +65,10 @@ pub fn action(
             action.path = path.iter().take(path.len() - 1).cloned().collect();
             color.0 = Color::rgb(0.0, 0.0, 1.0);
             *state = ActionState::Executing;
+            history.insert(
+              tick,
+              format!("Moving to water from {}:{}", position.x, position.y),
+            );
           } else {
             trace!("[REQUESTED] No path found to water from {:?}", position);
             *state = ActionState::Failure;
@@ -75,6 +79,13 @@ pub fn action(
             debug!("[EXECUTED] Arrived at water to drink at {:?}", position);
             color.0 = Color::rgb(1.0, 1.0, 1.0);
             *state = ActionState::Success;
+            history.insert(
+              tick,
+              format!(
+                "Arrived at water to drink at {}:{}",
+                position.x, position.y
+              ),
+            );
           } else {
             let destination = action.path.remove(0);
             position.x = destination.x;

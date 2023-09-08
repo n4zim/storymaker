@@ -16,13 +16,26 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::time::event::GameTick;
 use bevy::prelude::*;
 
-#[derive(Event, Clone, Copy)]
-pub struct GameTick {
-  pub day: i32,
-  pub hour: u32,
-  pub minute: u32,
-  pub second: u32,
-  pub total: u32,
+pub struct HistoryItem {
+  pub tick: GameTick,
+  pub description: String,
+}
+
+#[derive(Component)]
+pub struct History(pub Vec<HistoryItem>);
+
+impl History {
+  pub fn new() -> History {
+    History(vec![])
+  }
+
+  pub fn insert(&mut self, tick: &GameTick, description: String) {
+    self.0.push(HistoryItem {
+      tick: tick.clone(),
+      description,
+    });
+  }
 }

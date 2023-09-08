@@ -23,6 +23,7 @@ use bevy::prelude::*;
 
 pub mod clock;
 pub mod event;
+pub mod history;
 pub mod speed;
 pub mod timer;
 

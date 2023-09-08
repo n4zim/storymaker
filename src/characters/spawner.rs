@@ -18,6 +18,7 @@
 
 use super::component::*;
 use crate::brain;
+use crate::time::history::History;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use bevy_ecs_tilemap::tiles::TilePos;
@@ -155,6 +156,7 @@ impl CharactersSpawner {
         ..Default::default()
       },
       rng_component,
+      History::new(),
     ));
 
     brain::insert_bundle(&mut entity);

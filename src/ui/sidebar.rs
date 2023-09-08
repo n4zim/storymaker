@@ -16,35 +16,35 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::{
-  collections::{BTreeMap, HashMap},
-  fmt::format,
+use crate::{
+  brain::states::thirst::Thirst, characters::component::Character,
+  time::history::History,
 };
-
-use crate::characters::component::Character;
 use bevy::prelude::*;
 use bevy_egui::{
   egui::{self, *},
   EguiContexts,
 };
 use egui_extras::{Column, TableBuilder};
+use std::collections::{BTreeMap, HashMap};
 
 #[derive(Default, Resource)]
 pub struct CurrentState {
   selected_character: Option<u32>,
-  fake: f32,
 }
 
 pub fn system(
   mut contexts: EguiContexts,
   mut state: ResMut<CurrentState>,
-  characters: Query<&Character>,
+  mut characters: Query<(&Character, &History, &mut Thirst)>,
 ) {
   let mut characters_names = BTreeMap::<String, &Character>::new();
-  let mut characters_ids = HashMap::<u32, &Character>::new();
-  for character in characters.iter() {
+  let mut characters_ids =
+    HashMap::<u32, (&Character, &History, &mut Thirst)>::new();
+
+  for (character, history, mut thirst) in &mut characters {
     characters_names.insert(character.get_name(), character);
-    characters_ids.insert(character.id, character);
+    characters_ids.insert(character.id, (character, history, &mut thirst));
   }
 
   egui::SidePanel::right("sidebar")
@@ -66,14 +66,15 @@ pub fn system(
               false
             };
 
-            let label = selectable_label(ui, format!("{} ({})", name, character.get_gender()),  selected);
+            let label = selectable_label(
+              ui,
+              format!("{} ({})", name, character.get_gender()),
+              selected,
+            );
 
             if label.clicked() {
-              state.selected_character = if selected {
-                None
-              } else {
-                Some(character.id)
-              };
+              state.selected_character =
+                if selected { None } else { Some(character.id) };
             }
           }
         });
@@ -82,14 +83,17 @@ pub fn system(
         return;
       };
 
-      let character = characters_ids.get(&selected).unwrap();
+      let (character, history, mut thirst) =
+        characters_ids.get_mut(&selected).unwrap();
       let character_name = character.get_name();
 
       ui.separator();
 
-      ui.label(RichText::new(
-        format!("Actions of {}", character_name),
-      ).strong().size(16.0));
+      ui.label(
+        RichText::new(format!("Actions of {}", character_name))
+          .strong()
+          .size(16.0),
+      );
       egui::ScrollArea::horizontal()
         .id_source("actions")
         .max_height(height)
@@ -115,16 +119,19 @@ pub fn system(
               });
             })
             .body(|mut body| {
-              for _ in 0..100 {
+              for item in history.0.iter() {
                 body.row(10.0, |mut row| {
                   row.col(|ui| {
-                    ui.label("1");
+                    ui.label(item.tick.day.to_string());
                   });
                   row.col(|ui| {
-                    ui.label("23:46:12");
+                    ui.label(format!(
+                      "{:02}:{:02}:{:02}",
+                      item.tick.hour, item.tick.minute, item.tick.second,
+                    ));
                   });
                   row.col(|ui| {
-                    ui.label("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae nisl eget nunc aliquam aliqu etiam.");
+                    ui.label(item.description.clone());
                   });
                 });
               }
@@ -133,15 +140,18 @@ pub fn system(
 
       ui.separator();
 
-      ui.label(RichText::new(
-        format!("States of {}", character_name),
-      ).strong().size(16.0));
+      ui.label(
+        RichText::new(format!("States of {}", character_name))
+          .strong()
+          .size(16.0),
+      );
       ScrollArea::vertical()
         .id_source("states")
         .auto_shrink([false; 2])
         .show(ui, |ui| {
-          ui.add(egui::Slider::new(&mut state.fake, 0.0..=10.0).text("Thirst"));
-          ui.add(egui::Slider::new(&mut state.fake, 0.0..=10.0).text("Hunger"));
+          ui.add(
+            egui::Slider::new(&mut thirst.current, 0.0..=10.0).text("Thirst"),
+          );
         });
     });
 }

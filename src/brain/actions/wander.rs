@@ -18,7 +18,7 @@
 
 use crate::{
   characters::component::Character,
-  time::event::GameTick,
+  time::{event::GameTick, history::History},
   world::{map::WorldMap, pathfinding::path_from_to},
 };
 use bevy::prelude::*;
@@ -46,13 +46,14 @@ pub fn action(
     &mut TilePos,
     &mut TileColor,
     &mut RngComponent,
+    &mut History,
   )>,
 ) {
-  for _clock in events.iter() {
+  for tick in events.iter() {
     for (actor, mut state, mut action, span) in query.iter_mut() {
       let _guard = span.span().enter();
 
-      let (mut character, mut position, mut color, mut rng) =
+      let (mut character, mut position, mut color, mut rng, mut history) =
         characters.get_mut(actor.0).expect("actor has no character");
 
       match *state {
@@ -71,6 +72,10 @@ pub fn action(
             {
               action.path = path;
               *state = ActionState::Executing;
+              history.insert(
+                tick,
+                format!("Start wandering from {}:{}", position.x, position.y),
+              );
               break;
             }
           }
@@ -80,6 +85,10 @@ pub fn action(
           if action.path.is_empty() {
             trace!("[EXECUTED] Wandered to {:?}", position);
             *state = ActionState::Success;
+            history.insert(
+              tick,
+              format!("Stop wandering at {}:{}", position.x, position.y),
+            );
           } else {
             let destination = action.path.remove(0);
 

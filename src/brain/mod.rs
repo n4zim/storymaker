@@ -23,7 +23,7 @@ use big_brain::prelude::*;
 
 mod actions;
 mod scorers;
-mod states;
+pub mod states;
 
 pub struct BrainPlugin;
 
