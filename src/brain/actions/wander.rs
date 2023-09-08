@@ -18,7 +18,10 @@
 
 use crate::{
   characters::component::Character,
-  time::{event::GameTick, history::History},
+  time::{
+    event::GameTick,
+    history::{History, HistoryItemStatus},
+  },
   world::{map::WorldMap, pathfinding::path_from_to},
 };
 use bevy::prelude::*;
@@ -36,6 +39,8 @@ impl Wander {
     Self { path: vec![] }
   }
 }
+
+const NAME: &str = "Wander";
 
 pub fn action(
   mut events: EventReader<GameTick>,
@@ -72,10 +77,7 @@ pub fn action(
             {
               action.path = path;
               *state = ActionState::Executing;
-              history.insert(
-                tick,
-                format!("Start wandering from {}:{}", position.x, position.y),
-              );
+              history.insert(HistoryItemStatus::Start, tick, &position, NAME);
               break;
             }
           }
@@ -85,10 +87,7 @@ pub fn action(
           if action.path.is_empty() {
             trace!("[EXECUTED] Wandered to {:?}", position);
             *state = ActionState::Success;
-            history.insert(
-              tick,
-              format!("Stop wandering at {}:{}", position.x, position.y),
-            );
+            history.insert(HistoryItemStatus::End, tick, &position, NAME);
           } else {
             let destination = action.path.remove(0);
 
@@ -116,6 +115,7 @@ pub fn action(
         ActionState::Cancelled => {
           trace!("[CANCEL] Stopped wandering at {:?}", position);
           *state = ActionState::Failure;
+          history.insert(HistoryItemStatus::Cancel, tick, &position, NAME);
         }
         _ => {}
       }

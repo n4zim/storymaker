@@ -17,8 +17,9 @@
  */
 
 use crate::{
-  brain::states::thirst::Thirst, characters::component::Character,
-  time::history::History,
+  brain::states::thirst::Thirst,
+  characters::component::Character,
+  time::history::{History, HistoryItemStatus},
 };
 use bevy::prelude::*;
 use bevy_egui::{
@@ -59,12 +60,12 @@ pub fn system(
   }
 
   egui::SidePanel::right("sidebar")
-    .default_width(400.0)
+    .default_width(300.0)
     .resizable(true)
     .show(contexts.ctx_mut(), |ui| {
       let height = ui.available_rect_before_wrap().height() / 3.0 - 10.0;
 
-      ui.label(RichText::new("Characters").strong().size(16.0));
+      ui.heading(RichText::new("Characters").strong().size(16.0));
       ScrollArea::vertical()
         .id_source("characters")
         .auto_shrink([false; 2])
@@ -94,7 +95,7 @@ pub fn system(
 
       ui.separator();
 
-      ui.label(
+      ui.heading(
         RichText::new(format!("Actions of {}", character_name))
           .strong()
           .size(16.0),
@@ -110,6 +111,8 @@ pub fn system(
             .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
             .column(Column::auto())
             .column(Column::auto())
+            .column(Column::auto())
+            .column(Column::auto())
             .column(Column::remainder())
             .min_scrolled_height(0.0)
             .header(20.0, |mut header| {
@@ -120,11 +123,17 @@ pub fn system(
                 ui.strong("Time");
               });
               header.col(|ui| {
-                ui.strong("Description");
+                ui.strong("Position");
+              });
+              header.col(|ui| {
+                ui.strong("Type");
+              });
+              header.col(|ui| {
+                ui.strong("Name");
               });
             })
             .body(|mut body| {
-              for item in current_history.unwrap().0.iter() {
+              for item in current_history.unwrap().0.iter().rev() {
                 body.row(10.0, |mut row| {
                   row.col(|ui| {
                     ui.label(item.tick.day.to_string());
@@ -136,7 +145,20 @@ pub fn system(
                     ));
                   });
                   row.col(|ui| {
-                    ui.label(item.description.clone());
+                    ui.label(format!(
+                      "{}:{}",
+                      item.position.x, item.position.y
+                    ));
+                  });
+                  row.col(|ui| {
+                    ui.label(match item.status {
+                      HistoryItemStatus::Start => "Start",
+                      HistoryItemStatus::End => "End",
+                      HistoryItemStatus::Cancel => "Cancel",
+                    });
+                  });
+                  row.col(|ui| {
+                    ui.label(item.name.clone());
                   });
                 });
               }
@@ -149,7 +171,7 @@ pub fn system(
 
       ui.separator();
 
-      ui.label(
+      ui.heading(
         RichText::new(format!("States of {}", character_name))
           .strong()
           .size(16.0),
@@ -158,13 +180,16 @@ pub fn system(
         .id_source("states")
         .auto_shrink([false; 2])
         .show(ui, |ui| {
-          ui.add(
-            egui::Slider::new(
-              &mut current_thirst.unwrap().current,
-              0.0..=100.0,
-            )
-            .text("Thirst"),
-          );
+          ui.spacing_mut().slider_width = 150.0;
+          ui.horizontal(|ui| {
+            ui.add(
+              egui::Slider::new(
+                &mut current_thirst.unwrap().current,
+                0.0..=100.0,
+              )
+              .text(RichText::new("Thirst").strong()),
+            );
+          });
         });
     });
 }

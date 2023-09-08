@@ -18,7 +18,10 @@
 
 use crate::{
   brain::states::thirst,
-  time::{event::GameTick, history::History},
+  time::{
+    event::GameTick,
+    history::{History, HistoryItemStatus},
+  },
   world::{map::WorldMap, markers, pathfinding::path_from_to},
 };
 use bevy::prelude::*;
@@ -35,6 +38,8 @@ impl Drink {
     Self { speed }
   }
 }
+
+const NAME: &str = "Drink";
 
 pub fn action(
   mut events: EventReader<GameTick>,
@@ -61,10 +66,7 @@ pub fn action(
             if path[path.len() - 2] == *position {
               color.0 = Color::rgb(0.0, 0.0, 1.0);
               *state = ActionState::Executing;
-              history.insert(
-                tick,
-                format!("Start drinking at {}:{}", position.x, position.y),
-              );
+              history.insert(HistoryItemStatus::Start, tick, position, NAME);
             } else {
               trace!("[REQUESTED] Not close enough to water");
               *state = ActionState::Failure;
@@ -81,16 +83,14 @@ pub fn action(
             debug!("[EXECUTED] Drank from {:?}", position);
             color.0 = Color::rgb(1.0, 1.0, 1.0);
             *state = ActionState::Success;
-            history.insert(
-              tick,
-              format!("Stop drinking at {}:{}", position.x, position.y),
-            );
+            history.insert(HistoryItemStatus::End, tick, position, NAME);
           }
         }
         ActionState::Cancelled => {
           trace!("[CANCEL] Stopped drinking from {:?}", position);
           color.0 = Color::rgb(1.0, 1.0, 1.0);
           *state = ActionState::Failure;
+          history.insert(HistoryItemStatus::Cancel, tick, position, NAME);
         }
         _ => {}
       }

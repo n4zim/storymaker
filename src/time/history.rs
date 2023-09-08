@@ -18,10 +18,19 @@
 
 use crate::time::event::GameTick;
 use bevy::prelude::*;
+use bevy_ecs_tilemap::tiles::TilePos;
+
+pub enum HistoryItemStatus {
+  Start,
+  End,
+  Cancel,
+}
 
 pub struct HistoryItem {
+  pub status: HistoryItemStatus,
   pub tick: GameTick,
-  pub description: String,
+  pub position: TilePos,
+  pub name: String,
 }
 
 #[derive(Component)]
@@ -32,10 +41,18 @@ impl History {
     History(vec![])
   }
 
-  pub fn insert(&mut self, tick: &GameTick, description: String) {
+  pub fn insert(
+    &mut self,
+    status: HistoryItemStatus,
+    tick: &GameTick,
+    position: &TilePos,
+    name: &str,
+  ) {
     self.0.push(HistoryItem {
+      status,
       tick: tick.clone(),
-      description,
+      position: position.clone(),
+      name: name.to_string(),
     });
   }
 }
