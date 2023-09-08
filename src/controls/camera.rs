@@ -64,7 +64,8 @@ pub fn scroll_zoom(
   mut egui: Query<&mut EguiContext, With<PrimaryWindow>>,
 ) {
   if let Ok(mut ctx) = egui.get_single_mut() {
-    if ctx.get_mut().is_pointer_over_area() {
+    if ctx.get_mut().is_pointer_over_area() || ctx.get_mut().is_using_pointer()
+    {
       return;
     }
   } else {

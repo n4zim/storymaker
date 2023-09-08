@@ -16,6 +16,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::{
+  collections::{BTreeMap, HashMap},
+  fmt::format,
+};
+
 use crate::characters::component::Character;
 use bevy::prelude::*;
 use bevy_egui::{
@@ -26,16 +31,21 @@ use egui_extras::{Column, TableBuilder};
 
 #[derive(Default, Resource)]
 pub struct CurrentState {
-  selected_character: Option<String>,
+  selected_character: Option<u32>,
   fake: f32,
 }
 
 pub fn system(
   mut contexts: EguiContexts,
   mut state: ResMut<CurrentState>,
-  mut actors: Query<&mut Character>,
+  characters: Query<&Character>,
 ) {
-  let actors = actors.iter_mut().collect::<Vec<_>>();
+  let mut characters_names = BTreeMap::<String, &Character>::new();
+  let mut characters_ids = HashMap::<u32, &Character>::new();
+  for character in characters.iter() {
+    characters_names.insert(character.get_name(), character);
+    characters_ids.insert(character.id, character);
+  }
 
   egui::SidePanel::right("sidebar")
     .default_width(400.0)
@@ -49,29 +59,37 @@ pub fn system(
         .auto_shrink([false; 2])
         .max_height(height)
         .show(ui, |ui| {
-          let mut actors = actors
-            .iter()
-            .map(|actor| {
-              format!("{} ({})", actor.get_name(), actor.get_gender())
-            })
-            .collect::<Vec<String>>();
-          actors.sort();
-          for actor in actors.iter() {
-            let label = selectable_label(ui, actor, if let Some(selected) = &state.selected_character {
-              selected == actor
+          for (name, character) in characters_names.iter() {
+            let selected = if let Some(current) = state.selected_character {
+              current == character.id
             } else {
               false
-            });
+            };
+
+            let label = selectable_label(ui, format!("{} ({})", name, character.get_gender()),  selected);
+
             if label.clicked() {
-              println!("Selected {}", actor);
-              state.selected_character = Some(actor.clone());
+              state.selected_character = if selected {
+                None
+              } else {
+                Some(character.id)
+              };
             }
           }
         });
 
+      let Some(selected) = state.selected_character else {
+        return;
+      };
+
+      let character = characters_ids.get(&selected).unwrap();
+      let character_name = character.get_name();
+
       ui.separator();
 
-      ui.label(RichText::new("Actions").strong().size(16.0));
+      ui.label(RichText::new(
+        format!("Actions of {}", character_name),
+      ).strong().size(16.0));
       egui::ScrollArea::horizontal()
         .id_source("actions")
         .max_height(height)
@@ -115,7 +133,9 @@ pub fn system(
 
       ui.separator();
 
-      ui.label(RichText::new("States").strong().size(16.0));
+      ui.label(RichText::new(
+        format!("States of {}", character_name),
+      ).strong().size(16.0));
       ScrollArea::vertical()
         .id_source("states")
         .auto_shrink([false; 2])
@@ -126,13 +146,13 @@ pub fn system(
     });
 }
 
-fn selectable_label(ui: &mut Ui, text: &str, selected: bool) -> Response {
+fn selectable_label(ui: &mut Ui, text: String, selected: bool) -> Response {
   let text = if selected {
     RichText::new(text)
       .strong()
-      .color(Color32::from_rgb(0, 0, 0))
+      .background_color(Color32::from_rgb(128, 128, 128))
   } else {
     RichText::new(text)
   };
-  ui.label(text)
+  Label::new(text).sense(Sense::click()).ui(ui)
 }

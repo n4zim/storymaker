@@ -22,6 +22,7 @@ use bevy_ecs_tilemap::tiles::{TilePos, TileTextureIndex};
 
 #[derive(Component)]
 pub struct Character {
+  pub id: u32,
   firstname: String,
   lastname: String,
   gender: CharacterGender,
@@ -33,11 +34,13 @@ pub struct Character {
 
 impl Character {
   pub fn new(
+    id: u32,
     firstname: String,
     lastname: String,
     gender: CharacterGender,
   ) -> Character {
     Character {
+      id,
       firstname,
       lastname,
       gender,
