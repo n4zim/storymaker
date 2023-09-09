@@ -19,7 +19,7 @@
 use crate::{
   brain::states::thirst::Thirst,
   characters::component::Character,
-  time::history::{History, HistoryItemStatus},
+  time::history::{History, HistoryItem, HistoryItemStatus},
 };
 use bevy::prelude::*;
 use bevy_egui::{
@@ -44,7 +44,6 @@ pub fn system(
   let mut current_thirst: Option<Mut<'_, Thirst>> = None;
 
   let mut characters_list = BTreeMap::<String, u32>::new();
-
   for (character, history, thirst) in &mut characters {
     characters_list.insert(
       format!("{} ({})", character.get_name(), character.get_gender()),
@@ -71,20 +70,7 @@ pub fn system(
         .auto_shrink([false; 2])
         .max_height(height)
         .show(ui, |ui| {
-          for (name, id) in characters_list.iter() {
-            let selected = if let Some(current) = state.selected_character {
-              current == *id
-            } else {
-              false
-            };
-
-            let label = selectable_label(ui, name.clone(), selected);
-
-            if label.clicked() {
-              state.selected_character =
-                if selected { None } else { Some(*id) };
-            }
-          }
+          characters_ui(ui, &characters_list, &mut state);
         });
 
       if current_character.is_none() || current_history.is_none() {
@@ -105,64 +91,7 @@ pub fn system(
         .max_height(height)
         .auto_shrink([false; 2])
         .show(ui, |ui| {
-          TableBuilder::new(ui)
-            .striped(true)
-            .auto_shrink([false; 2])
-            .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
-            .column(Column::auto())
-            .column(Column::auto())
-            .column(Column::auto())
-            .column(Column::auto())
-            .column(Column::remainder())
-            .min_scrolled_height(0.0)
-            .header(20.0, |mut header| {
-              header.col(|ui| {
-                ui.strong("Day");
-              });
-              header.col(|ui| {
-                ui.strong("Time");
-              });
-              header.col(|ui| {
-                ui.strong("Position");
-              });
-              header.col(|ui| {
-                ui.strong("Type");
-              });
-              header.col(|ui| {
-                ui.strong("Name");
-              });
-            })
-            .body(|mut body| {
-              for item in current_history.unwrap().0.iter().rev() {
-                body.row(10.0, |mut row| {
-                  row.col(|ui| {
-                    ui.label(item.tick.day.to_string());
-                  });
-                  row.col(|ui| {
-                    ui.label(format!(
-                      "{:02}:{:02}:{:02}",
-                      item.tick.hour, item.tick.minute, item.tick.second,
-                    ));
-                  });
-                  row.col(|ui| {
-                    ui.label(format!(
-                      "{}:{}",
-                      item.position.x, item.position.y
-                    ));
-                  });
-                  row.col(|ui| {
-                    ui.label(match item.status {
-                      HistoryItemStatus::Start => "Start",
-                      HistoryItemStatus::End => "End",
-                      HistoryItemStatus::Cancel => "Cancel",
-                    });
-                  });
-                  row.col(|ui| {
-                    ui.label(item.name.clone());
-                  });
-                });
-              }
-            });
+          actions_ui(ui, current_history.unwrap());
         });
 
       if current_thirst.is_none() {
@@ -180,18 +109,94 @@ pub fn system(
         .id_source("states")
         .auto_shrink([false; 2])
         .show(ui, |ui| {
-          ui.spacing_mut().slider_width = 150.0;
-          ui.horizontal(|ui| {
-            ui.add(
-              egui::Slider::new(
-                &mut current_thirst.unwrap().current,
-                0.0..=100.0,
-              )
-              .text(RichText::new("Thirst").strong()),
-            );
-          });
+          states_ui(ui, current_thirst.unwrap());
         });
     });
+}
+
+fn characters_ui(
+  ui: &mut Ui,
+  characters: &BTreeMap<String, u32>,
+  state: &mut CurrentState,
+) {
+  for (name, id) in characters.iter() {
+    let selected = if let Some(current) = state.selected_character {
+      current == *id
+    } else {
+      false
+    };
+    if selectable_label(ui, name.clone(), selected).clicked() {
+      state.selected_character = if selected { None } else { Some(*id) };
+    }
+  }
+}
+
+fn actions_ui(ui: &mut Ui, history: &History) {
+  TableBuilder::new(ui)
+    .striped(true)
+    .auto_shrink([false; 2])
+    .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
+    .column(Column::auto())
+    .column(Column::auto())
+    .column(Column::auto())
+    .column(Column::auto())
+    .column(Column::remainder())
+    .min_scrolled_height(0.0)
+    .header(20.0, |mut header| {
+      header.col(|ui| {
+        ui.strong("Day");
+      });
+      header.col(|ui| {
+        ui.strong("Time");
+      });
+      header.col(|ui| {
+        ui.strong("Position");
+      });
+      header.col(|ui| {
+        ui.strong("Type");
+      });
+      header.col(|ui| {
+        ui.strong("Name");
+      });
+    })
+    .body(|mut body| {
+      for item in history.0.iter().rev() {
+        body.row(10.0, |mut row| {
+          row.col(|ui| {
+            ui.label(item.tick.day.to_string());
+          });
+          row.col(|ui| {
+            ui.label(format!(
+              "{:02}:{:02}:{:02}",
+              item.tick.hour, item.tick.minute, item.tick.second,
+            ));
+          });
+          row.col(|ui| {
+            ui.label(format!("{}:{}", item.position.x, item.position.y));
+          });
+          row.col(|ui| {
+            ui.label(match item.status {
+              HistoryItemStatus::Start => "Start",
+              HistoryItemStatus::End => "End",
+              HistoryItemStatus::Cancel => "Cancel",
+            });
+          });
+          row.col(|ui| {
+            ui.label(item.name.clone());
+          });
+        });
+      }
+    });
+}
+
+fn states_ui(ui: &mut Ui, mut current_thirst: Mut<'_, Thirst>) {
+  ui.spacing_mut().slider_width = 150.0;
+  ui.horizontal(|ui| {
+    ui.add(
+      egui::Slider::new(&mut current_thirst.current, 0.0..=100.0)
+        .text(RichText::new("Thirst").strong()),
+    );
+  });
 }
 
 fn selectable_label(ui: &mut Ui, text: String, selected: bool) -> Response {

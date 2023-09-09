@@ -30,6 +30,9 @@ pub struct Character {
   posture_reverse: bool,
 }
 
+#[derive(Component)]
+pub struct SelectedCharacter;
+
 impl Character {
   pub fn new(
     id: u32,
