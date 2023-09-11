@@ -21,9 +21,17 @@ use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::TilePos;
 
 pub enum HistoryItemStatus {
-  Start,
-  End,
+  Do,
   Cancel,
+}
+
+impl HistoryItemStatus {
+  pub fn to_string(&self) -> String {
+    match self {
+      HistoryItemStatus::Do => "do".to_string(),
+      HistoryItemStatus::Cancel => "cancel".to_string(),
+    }
+  }
 }
 
 pub struct HistoryItem {

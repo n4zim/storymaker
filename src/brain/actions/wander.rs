@@ -77,7 +77,7 @@ pub fn action(
             {
               action.path = path;
               *state = ActionState::Executing;
-              history.insert(HistoryItemStatus::Start, tick, &position, NAME);
+              history.insert(HistoryItemStatus::Do, tick, &position, NAME);
               break;
             }
           }
@@ -87,7 +87,6 @@ pub fn action(
           if action.path.is_empty() {
             trace!("[EXECUTED] Wandered to {:?}", position);
             *state = ActionState::Success;
-            history.insert(HistoryItemStatus::End, tick, &position, NAME);
           } else {
             let destination = action.path.remove(0);
 

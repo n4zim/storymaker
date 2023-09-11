@@ -28,7 +28,6 @@ impl Plugin for UIPlugin {
   fn build(&self, app: &mut App) {
     app
       .add_plugins(EguiPlugin)
-      .init_resource::<sidebar::CurrentState>()
       .add_systems(Update, (clock::system, sidebar::system));
   }
 }

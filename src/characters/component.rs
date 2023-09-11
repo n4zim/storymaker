@@ -21,7 +21,7 @@ use bevy_ecs_tilemap::tiles::{TilePos, TileTextureIndex};
 
 #[derive(Component)]
 pub struct Character {
-  pub id: u32,
+  pub entity: Entity,
   firstname: String,
   lastname: String,
   gender: CharacterGender,
@@ -30,18 +30,15 @@ pub struct Character {
   posture_reverse: bool,
 }
 
-#[derive(Component)]
-pub struct SelectedCharacter;
-
 impl Character {
   pub fn new(
-    id: u32,
+    entity: Entity,
     firstname: String,
     lastname: String,
     gender: CharacterGender,
   ) -> Character {
     Character {
-      id,
+      entity,
       firstname,
       lastname,
       gender,

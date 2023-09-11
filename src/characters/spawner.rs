@@ -30,7 +30,6 @@ use std::fs::read_to_string;
 pub struct CharactersSpawner {
   storage: TileStorage,
   tile_id: TilemapId,
-  next_id: u32,
   firstnames: HashMap<CharacterGender, Vec<String>>,
   lastnames: Vec<String>,
 }
@@ -105,7 +104,6 @@ impl CharactersSpawner {
     CharactersSpawner {
       storage,
       tile_id: TilemapId(entity_id),
-      next_id: 0,
       firstnames,
       lastnames,
     }
@@ -142,12 +140,14 @@ impl CharactersSpawner {
       .unwrap()
       .to_string();
 
-    let character = Character::new(self.next_id, firstname, lastname, gender);
-    self.next_id += 1;
+    let entity_id = commands.spawn_empty().id();
 
+    let character = Character::new(entity_id, firstname, lastname, gender);
     let texture_index = character.get_texture_index();
 
-    let mut entity = commands.spawn((
+    let mut entity = commands.entity(entity_id);
+
+    entity.insert((
       character,
       TileBundle {
         position,
@@ -161,6 +161,6 @@ impl CharactersSpawner {
 
     brain::insert_bundle(&mut entity);
 
-    self.storage.set(&position, entity.id());
+    self.storage.set(&position, entity_id);
   }
 }

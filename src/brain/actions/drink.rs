@@ -66,7 +66,7 @@ pub fn action(
             if path[path.len() - 2] == *position {
               color.0 = Color::rgb(0.0, 0.0, 1.0);
               *state = ActionState::Executing;
-              history.insert(HistoryItemStatus::Start, tick, position, NAME);
+              history.insert(HistoryItemStatus::Do, tick, position, NAME);
             } else {
               trace!("[REQUESTED] Not close enough to water");
               *state = ActionState::Failure;
@@ -83,7 +83,6 @@ pub fn action(
             debug!("[EXECUTED] Drank from {:?}", position);
             color.0 = Color::rgb(1.0, 1.0, 1.0);
             *state = ActionState::Success;
-            history.insert(HistoryItemStatus::End, tick, position, NAME);
           }
         }
         ActionState::Cancelled => {

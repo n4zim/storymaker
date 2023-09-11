@@ -19,4 +19,7 @@
 use bevy::prelude::*;
 
 #[derive(Component, Debug)]
+pub struct Selected;
+
+#[derive(Component, Debug)]
 pub struct Water;

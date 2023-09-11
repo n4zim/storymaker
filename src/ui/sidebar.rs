@@ -17,9 +17,8 @@
  */
 
 use crate::{
-  brain::states::thirst::Thirst,
-  characters::component::Character,
-  time::history::{History, HistoryItem, HistoryItemStatus},
+  brain::states::thirst::Thirst, characters::component::Character,
+  time::history::History, world::markers::Selected,
 };
 use bevy::prelude::*;
 use bevy_egui::{
@@ -29,34 +28,20 @@ use bevy_egui::{
 use egui_extras::{Column, TableBuilder};
 use std::collections::BTreeMap;
 
-#[derive(Default, Resource)]
-pub struct CurrentState {
-  selected_character: Option<u32>,
-}
-
 pub fn system(
+  mut commands: Commands,
   mut contexts: EguiContexts,
-  mut state: ResMut<CurrentState>,
-  mut characters: Query<(&Character, &History, &mut Thirst)>,
+  characters: Query<&Character>,
+  mut selected: Query<(&Character, &History, &mut Thirst), With<Selected>>,
 ) {
-  let mut current_character: Option<&Character> = None;
-  let mut current_history: Option<&History> = None;
-  let mut current_thirst: Option<Mut<'_, Thirst>> = None;
-
-  let mut characters_list = BTreeMap::<String, u32>::new();
-  for (character, history, thirst) in &mut characters {
-    characters_list.insert(
-      format!("{} ({})", character.get_name(), character.get_gender()),
-      character.id,
-    );
-    if let Some(selected) = state.selected_character {
-      if selected == character.id {
-        current_character.replace(character);
-        current_history.replace(history);
-        current_thirst.replace(thirst);
-      }
-    }
-  }
+  let mut selected_entity: Option<Entity> = None;
+  let selected = if selected.is_empty() {
+    None
+  } else {
+    let selected = selected.single_mut();
+    selected_entity.replace(selected.0.entity);
+    Some(selected)
+  };
 
   egui::SidePanel::right("sidebar")
     .default_width(300.0)
@@ -70,14 +55,15 @@ pub fn system(
         .auto_shrink([false; 2])
         .max_height(height)
         .show(ui, |ui| {
-          characters_ui(ui, &characters_list, &mut state);
+          characters_ui(&mut commands, ui, characters, selected_entity);
         });
 
-      if current_character.is_none() || current_history.is_none() {
+      if selected.is_none() {
         return;
-      };
+      }
 
-      let character_name = current_character.unwrap().get_name();
+      let (character, history, current_thirst) = selected.unwrap();
+      let character_name = character.get_name();
 
       ui.separator();
 
@@ -91,12 +77,8 @@ pub fn system(
         .max_height(height)
         .auto_shrink([false; 2])
         .show(ui, |ui| {
-          actions_ui(ui, current_history.unwrap());
+          actions_ui(ui, history);
         });
-
-      if current_thirst.is_none() {
-        return;
-      };
 
       ui.separator();
 
@@ -109,24 +91,40 @@ pub fn system(
         .id_source("states")
         .auto_shrink([false; 2])
         .show(ui, |ui| {
-          states_ui(ui, current_thirst.unwrap());
+          states_ui(ui, current_thirst);
         });
     });
 }
 
 fn characters_ui(
+  commands: &mut Commands,
   ui: &mut Ui,
-  characters: &BTreeMap<String, u32>,
-  state: &mut CurrentState,
+  query: Query<&Character>,
+  selected: Option<Entity>,
 ) {
-  for (name, id) in characters.iter() {
-    let selected = if let Some(current) = state.selected_character {
-      current == *id
-    } else {
-      false
+  let mut characters = BTreeMap::<String, &Character>::new();
+  for character in query.iter() {
+    characters.insert(
+      format!("{} ({})", character.get_name(), character.get_gender()),
+      &character,
+    );
+  }
+
+  for (name, character) in characters.iter() {
+    let is_selected = match selected {
+      None => false,
+      Some(selected) => selected == character.entity,
     };
-    if selectable_label(ui, name.clone(), selected).clicked() {
-      state.selected_character = if selected { None } else { Some(*id) };
+    if selectable_label(ui, name.clone(), is_selected).clicked() {
+      let mut entity = commands.entity(character.entity);
+      if is_selected {
+        entity.remove::<Selected>();
+      } else {
+        entity.insert(Selected);
+        if selected.is_some() {
+          commands.entity(selected.unwrap()).remove::<Selected>();
+        }
+      }
     }
   }
 }
@@ -175,11 +173,7 @@ fn actions_ui(ui: &mut Ui, history: &History) {
             ui.label(format!("{}:{}", item.position.x, item.position.y));
           });
           row.col(|ui| {
-            ui.label(match item.status {
-              HistoryItemStatus::Start => "Start",
-              HistoryItemStatus::End => "End",
-              HistoryItemStatus::Cancel => "Cancel",
-            });
+            ui.label(item.status.to_string());
           });
           row.col(|ui| {
             ui.label(item.name.clone());

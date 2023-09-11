@@ -70,7 +70,7 @@ pub fn action(
             action.path = path.iter().take(path.len() - 1).cloned().collect();
             color.0 = Color::rgb(0.0, 0.0, 1.0);
             *state = ActionState::Executing;
-            history.insert(HistoryItemStatus::Start, tick, &position, NAME);
+            history.insert(HistoryItemStatus::Do, tick, &position, NAME);
           } else {
             trace!("[REQUESTED] No path found to water from {:?}", position);
             *state = ActionState::Failure;
@@ -81,7 +81,6 @@ pub fn action(
             debug!("[EXECUTED] Arrived at water to drink at {:?}", position);
             color.0 = Color::rgb(1.0, 1.0, 1.0);
             *state = ActionState::Success;
-            history.insert(HistoryItemStatus::End, tick, &position, NAME);
           } else {
             let destination = action.path.remove(0);
             position.x = destination.x;
