@@ -17,6 +17,7 @@
  */
 
 use super::component::*;
+use super::relationships::Relationships;
 use crate::brain;
 use crate::time::history::History;
 use bevy::prelude::*;
@@ -142,7 +143,7 @@ impl CharactersSpawner {
 
     let entity_id = commands.spawn_empty().id();
 
-    let character = Character::new(entity_id, firstname, lastname, gender);
+    let character = Character::new(entity_id, firstname, lastname, &gender);
     let texture_index = character.get_texture_index();
 
     let mut entity = commands.entity(entity_id);
@@ -156,6 +157,11 @@ impl CharactersSpawner {
         ..Default::default()
       },
       rng_component,
+      Relationships::new(match gender {
+        CharacterGender::Male => CharacterGender::Female,
+        CharacterGender::Female => CharacterGender::Male,
+        CharacterGender::Other => CharacterGender::Other,
+      }),
       History::new(),
     ));
 

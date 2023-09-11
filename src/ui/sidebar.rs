@@ -34,20 +34,20 @@ pub fn system(
   characters: Query<&Character>,
   mut selected: Query<(&Character, &History, &mut Thirst), With<Selected>>,
 ) {
-  let mut selected_entity: Option<Entity> = None;
-  let selected = if selected.is_empty() {
-    None
-  } else {
-    let selected = selected.single_mut();
-    selected_entity.replace(selected.0.entity);
-    Some(selected)
-  };
-
   egui::SidePanel::right("sidebar")
     .default_width(300.0)
     .resizable(true)
     .show(contexts.ctx_mut(), |ui| {
       let height = ui.available_rect_before_wrap().height() / 3.0 - 10.0;
+
+      let mut selected_entity: Option<Entity> = None;
+      let selected = if selected.is_empty() {
+        None
+      } else {
+        let selected = selected.single_mut();
+        selected_entity.replace(selected.0.entity);
+        Some(selected)
+      };
 
       ui.heading(RichText::new("Characters").strong().size(16.0));
       ScrollArea::vertical()
@@ -105,7 +105,11 @@ fn characters_ui(
   let mut characters = BTreeMap::<String, &Character>::new();
   for character in query.iter() {
     characters.insert(
-      format!("{} ({})", character.get_name(), character.get_gender()),
+      format!(
+        "{} ({})",
+        character.get_name(),
+        character.gender.to_string()
+      ),
       &character,
     );
   }

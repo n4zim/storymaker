@@ -17,5 +17,5 @@
  */
 
 pub mod drink;
-pub mod move_to_water;
+pub mod move_to;
 pub mod wander;

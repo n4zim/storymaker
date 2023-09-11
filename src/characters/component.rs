@@ -24,7 +24,7 @@ pub struct Character {
   pub entity: Entity,
   firstname: String,
   lastname: String,
-  gender: CharacterGender,
+  pub gender: CharacterGender,
   direction: CharacterDirection,
   posture: CharacterPosture,
   posture_reverse: bool,
@@ -35,13 +35,13 @@ impl Character {
     entity: Entity,
     firstname: String,
     lastname: String,
-    gender: CharacterGender,
+    gender: &CharacterGender,
   ) -> Character {
     Character {
       entity,
       firstname,
       lastname,
-      gender,
+      gender: gender.clone(),
       direction: CharacterDirection::Bottom,
       posture: CharacterPosture::Idle,
       posture_reverse: false,
@@ -98,13 +98,9 @@ impl Character {
   pub fn get_name(&self) -> String {
     format!("{} {}", self.firstname, self.lastname)
   }
-
-  pub fn get_gender(&self) -> String {
-    self.gender.to_string()
-  }
 }
 
-#[derive(PartialEq, Eq, Hash, Debug)]
+#[derive(PartialEq, Eq, Clone, Hash, Debug)]
 pub enum CharacterGender {
   Male,
   Female,
@@ -129,7 +125,7 @@ impl CharacterGender {
     }
   }
 
-  fn to_string(&self) -> String {
+  pub fn to_string(&self) -> String {
     match self {
       Self::Male => "male",
       Self::Female => "female",

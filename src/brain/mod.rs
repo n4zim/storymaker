@@ -35,7 +35,7 @@ impl Plugin for BrainPlugin {
       .add_systems(Update, thirst::state_system)
       .add_systems(
         PreUpdate,
-        (drink::action, move_to_water::action, wander::action)
+        (drink::action, move_to::water::action, wander::action)
           .in_set(BigBrainSet::Actions),
       );
   }
@@ -50,7 +50,7 @@ pub fn insert_bundle(entity: &mut EntityCommands) {
         thirsty::Thirsty,
         Steps::build()
           .label("MoveAndDrink")
-          .step(move_to_water::MoveToWater::new(1.0))
+          .step(move_to::water::MoveToWater::new(1.0))
           .step(drink::Drink::new(1.0)),
       )
       .otherwise(wander::Wander::new()),

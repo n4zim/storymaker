@@ -16,26 +16,4 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use self::component::Character;
-use bevy::prelude::*;
-use bevy_ecs_tilemap::tiles::TileTextureIndex;
-
-pub mod component;
-pub mod relationships;
-pub mod spawner;
-
-pub struct CharactersPlugin;
-
-impl Plugin for CharactersPlugin {
-  fn build(&self, app: &mut App) {
-    app.add_systems(Update, textures);
-  }
-}
-
-fn textures(mut query: Query<(&mut Character, &mut TileTextureIndex)>) {
-  for (actor, mut texture_index) in query.iter_mut() {
-    texture_index
-      .set(Box::new(actor.get_texture_index()))
-      .unwrap()
-  }
-}
+pub mod water;
