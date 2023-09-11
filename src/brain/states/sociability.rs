@@ -16,5 +16,31 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-pub mod sociability;
-pub mod thirst;
+use crate::time::event::GameTick;
+use bevy::prelude::*;
+
+#[derive(Component, Debug)]
+pub struct Sociability {
+  pub current: f32,
+  pub speed: f32,
+}
+
+impl Sociability {
+  pub fn new(current: f32, speed: f32) -> Self {
+    Self { current, speed }
+  }
+}
+
+pub fn state_system(
+  mut events: EventReader<GameTick>,
+  mut sociability: Query<&mut Sociability>,
+) {
+  for _ in events.iter() {
+    for mut current in &mut sociability {
+      current.current += current.speed;
+      if current.current >= 100.0 {
+        current.current = 100.0;
+      }
+    }
+  }
+}

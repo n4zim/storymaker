@@ -41,7 +41,6 @@ pub fn state_system(
       if thirst.current >= 100.0 {
         thirst.current = 100.0;
       }
-      //println!("Thirst: {}", thirst.current);
     }
   }
 }

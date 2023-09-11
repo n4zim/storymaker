@@ -17,8 +17,10 @@
  */
 
 use crate::{
-  brain::states::thirst::Thirst, characters::component::Character,
-  time::history::History, world::markers::Selected,
+  brain::states::{sociability::Sociability, thirst::Thirst},
+  characters::component::Character,
+  time::history::History,
+  world::markers::Selected,
 };
 use bevy::prelude::*;
 use bevy_egui::{
@@ -26,13 +28,16 @@ use bevy_egui::{
   EguiContexts,
 };
 use egui_extras::{Column, TableBuilder};
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, ops::RangeFrom};
 
 pub fn system(
   mut commands: Commands,
   mut contexts: EguiContexts,
   characters: Query<&Character>,
-  mut selected: Query<(&Character, &History, &mut Thirst), With<Selected>>,
+  mut selected: Query<
+    (&Character, &History, &mut Thirst, &mut Sociability),
+    With<Selected>,
+  >,
 ) {
   egui::SidePanel::right("sidebar")
     .default_width(300.0)
@@ -62,7 +67,7 @@ pub fn system(
         return;
       }
 
-      let (character, history, current_thirst) = selected.unwrap();
+      let (character, history, thirst, sociability) = selected.unwrap();
       let character_name = character.get_name();
 
       ui.separator();
@@ -91,7 +96,7 @@ pub fn system(
         .id_source("states")
         .auto_shrink([false; 2])
         .show(ui, |ui| {
-          states_ui(ui, current_thirst);
+          states_ui(ui, thirst, sociability);
         });
     });
 }
@@ -187,14 +192,20 @@ fn actions_ui(ui: &mut Ui, history: &History) {
     });
 }
 
-fn states_ui(ui: &mut Ui, mut current_thirst: Mut<'_, Thirst>) {
+fn states_ui(
+  ui: &mut Ui,
+  mut thirst: Mut<'_, Thirst>,
+  mut sociability: Mut<'_, Sociability>,
+) {
   ui.spacing_mut().slider_width = 150.0;
-  ui.horizontal(|ui| {
-    ui.add(
-      egui::Slider::new(&mut current_thirst.current, 0.0..=100.0)
-        .text(RichText::new("Thirst").strong()),
-    );
-  });
+  ui.add(
+    egui::Slider::new(&mut thirst.current, 0.0..=100.0)
+      .text(RichText::new("Thirst").strong()),
+  );
+  ui.add(
+    egui::Slider::new(&mut sociability.current, 0.0..=100.0)
+      .text(RichText::new("Sociability").strong()),
+  );
 }
 
 fn selectable_label(ui: &mut Ui, text: String, selected: bool) -> Response {
