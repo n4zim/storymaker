@@ -31,7 +31,7 @@ use big_brain::prelude::*;
 
 #[derive(Component, ActionBuilder, Clone, Debug)]
 pub struct Talk {
-  speed: f32,
+  _speed: f32,
   path: Vec<TilePos>,
 }
 
@@ -39,7 +39,7 @@ impl Talk {
   pub fn new(speed: f32) -> Self {
     Self {
       path: vec![],
-      speed,
+      _speed: speed,
     }
   }
 }

@@ -36,16 +36,16 @@ pub fn path_from_to(
   .collect::<HashSet<TilePos>>();*/
 
   if targets.is_empty() {
-    //println!("No targets");
     return None;
   }
 
   let mut targets = targets.clone();
   targets.sort_by(|a, b| {
-    let da = distance(start, a);
-    let db = distance(start, b);
+    let da = distance_from_positions(start, a);
+    let db = distance_from_positions(start, b);
     da.cmp(&db)
   });
+
   // To speed up the pathfinding, we only consider the closest target
   let target = targets[0];
 
@@ -66,7 +66,7 @@ pub fn path_from_to(
       successors
     },
     |&node| {
-      distance(&node, &target)
+      distance_from_positions(&node, &target)
       /*let mut cost = 0;
       for target in targets.iter() {
         cost += distance(&node, &target);
@@ -87,7 +87,7 @@ pub fn path_from_to(
   }
 }
 
-fn distance(a: &TilePos, b: &TilePos) -> u32 {
+pub fn distance_from_positions(a: &TilePos, b: &TilePos) -> u32 {
   let dx = if a.x > b.x { a.x - b.x } else { b.x - a.x };
   let dy = if a.y > b.y { a.y - b.y } else { b.y - a.y };
   dx + dy
