@@ -16,6 +16,23 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use bevy::prelude::*;
+use big_brain::prelude::*;
+
 pub mod drink;
 pub mod move_to;
+pub mod talk;
 pub mod wander;
+
+pub fn build(app: &mut App) {
+  app.add_systems(
+    PreUpdate,
+    (
+      drink::action,
+      move_to::water::action,
+      talk::action,
+      wander::action,
+    )
+      .in_set(BigBrainSet::Actions),
+  );
+}

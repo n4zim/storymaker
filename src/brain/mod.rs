@@ -29,24 +29,23 @@ pub struct BrainPlugin;
 
 impl Plugin for BrainPlugin {
   fn build(&self, app: &mut App) {
-    app
-      .add_plugins(BigBrainPlugin::new(PreUpdate))
-      .add_systems(First, thirsty::scorer_system)
-      .add_systems(Update, (sociability::state_system, thirst::state_system))
-      .add_systems(
-        PreUpdate,
-        (drink::action, move_to::water::action, wander::action)
-          .in_set(BigBrainSet::Actions),
-      );
+    app.add_plugins(BigBrainPlugin::new(PreUpdate));
+    scorers::build(app);
+    states::build(app);
+    actions::build(app);
   }
 }
+
+pub const THRESHOLD: f32 = 0.8;
 
 pub fn insert_bundle(entity: &mut EntityCommands) {
   entity.insert((
     thirst::Thirst::new(0., 0.08),
     sociability::Sociability::new(50., 0.01),
     Thinker::build()
-      .picker(FirstToScore { threshold: 0.8 })
+      .picker(FirstToScore {
+        threshold: THRESHOLD,
+      })
       .when(
         thirsty::Thirsty,
         Steps::build()
@@ -54,6 +53,7 @@ pub fn insert_bundle(entity: &mut EntityCommands) {
           .step(move_to::water::MoveToWater::new(1.))
           .step(drink::Drink::new(1.)),
       )
+      .when(discussion::Discussion, talk::Talk::new(1.))
       .otherwise(wander::Wander::new()),
   ));
 }

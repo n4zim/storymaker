@@ -16,4 +16,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use bevy::prelude::{App, First};
+
+pub mod discussion;
 pub mod thirsty;
+
+pub fn build(app: &mut App) {
+  app.add_systems(First, (discussion::scorer_system, thirsty::scorer_system));
+}

@@ -16,11 +16,25 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use bevy::prelude::{App, Update};
+use crate::brain::{states::sociability, THRESHOLD};
+use bevy::prelude::*;
+use big_brain::prelude::*;
 
-pub mod sociability;
-pub mod thirst;
+#[derive(Component, ScorerBuilder, Clone, Debug)]
+pub struct Discussion;
 
-pub fn build(app: &mut App) {
-  app.add_systems(Update, (sociability::state_system, thirst::state_system));
+pub fn scorer_system(
+  states: Query<&sociability::Sociability>,
+  mut query: Query<(&Actor, &mut Score), With<Discussion>>,
+) {
+  for (Actor(actor), mut score) in &mut query {
+    if let Ok(sociability) = states.get(*actor) {
+      let sociability = sociability.current / 100.;
+      if sociability < THRESHOLD {
+        score.set(sociability);
+      } else {
+        score.set(0.);
+      }
+    }
+  }
 }
