@@ -16,12 +16,14 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use self::constants::SCORERS_THRESHOLD;
 use self::{actions::*, scorers::*, states::*};
 use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
 use big_brain::prelude::*;
 
 mod actions;
+mod constants;
 mod scorers;
 pub mod states;
 
@@ -36,15 +38,13 @@ impl Plugin for BrainPlugin {
   }
 }
 
-pub const THRESHOLD: f32 = 0.8;
-
 pub fn insert_bundle(entity: &mut EntityCommands) {
   entity.insert((
     thirst::Thirst::new(0., 0.08),
     sociability::Sociability::new(50., 0.01),
     Thinker::build()
       .picker(FirstToScore {
-        threshold: THRESHOLD,
+        threshold: SCORERS_THRESHOLD,
       })
       .when(
         thirsty::Thirsty,
@@ -53,7 +53,13 @@ pub fn insert_bundle(entity: &mut EntityCommands) {
           .step(move_to::water::MoveToWater::new(1.))
           .step(drink::Drink::new(1.)),
       )
-      .when(discussion::Discussion, talk::Talk::new(1.))
+      .when(
+        discussion::Discussion,
+        Steps::build()
+          .label("MoveAndTalk")
+          .step(move_to::talk::MoveToTalk::new(1.))
+          .step(talk::Talk),
+      )
       .otherwise(wander::Wander::new()),
   ));
 }

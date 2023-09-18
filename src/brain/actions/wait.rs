@@ -22,48 +22,51 @@ use crate::{
     event::GameTick,
     history::{History, HistoryItemStatus},
   },
-  world::{map::WorldMap, markers::TalkTarget},
+  world::{map::WorldMap, markers::TalkTarget, pathfinding::path_from_to},
 };
 use bevy::prelude::*;
-use bevy_ecs_tilemap::tiles::TilePos;
+use bevy_ecs_tilemap::tiles::{TileColor, TilePos};
+use bevy_turborand::prelude::*;
 use big_brain::prelude::*;
 
 #[derive(Component, ActionBuilder, Clone, Debug)]
-pub struct Talk;
+pub struct Wait {
+  max: f32,
+}
 
-const NAME: &str = "Talk";
+impl Wait {
+  pub fn new(max: f32) -> Self {
+    Self { max }
+  }
+}
+
+const NAME: &str = "Wait";
 
 pub fn action(
   mut events: EventReader<GameTick>,
-  world: Res<WorldMap>,
-  mut query: Query<(&Actor, &mut ActionState, &mut Talk, &ActionSpan)>,
-  mut characters: Query<(&mut Character, &mut TilePos, &mut History)>,
-  available: Query<(&Character, &TilePos), Without<TalkTarget>>,
-  mut commands: Commands,
+  mut query: Query<(&Actor, &mut ActionState, &mut Wait, &ActionSpan)>,
+  mut characters: Query<(&Character, &TilePos, &mut History)>,
 ) {
   for tick in events.iter() {
-    for (actor, mut state, mut action, span) in query.iter_mut() {
+    for (actor, mut state, mut _action, span) in query.iter_mut() {
       let _guard = span.span().enter();
 
-      let (mut character, mut position, mut history) =
+      let (_, position, mut history) =
         characters.get_mut(actor.0).expect("actor has no character");
 
       match *state {
         ActionState::Requested => {
+          debug!("[REQUEST] Waiting from {:?}", position);
           *state = ActionState::Executing;
           history.insert(HistoryItemStatus::Do, tick, &position, NAME);
         }
 
-        ActionState::Executing => {
-          debug!("[EXECUTED] Talked to {:?}", position);
-          *state = ActionState::Success;
-        }
-
         ActionState::Cancelled => {
-          debug!("[CANCEL] Stopped talking at {:?}", position);
+          trace!("[CANCEL] Stopped waiting at {:?}", position);
           *state = ActionState::Failure;
           history.insert(HistoryItemStatus::Cancel, tick, &position, NAME);
         }
+
         _ => {}
       }
     }

@@ -16,25 +16,20 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::{characters::component::Character, world::markers::TalkTarget};
 use bevy::prelude::*;
 use big_brain::prelude::*;
 
-pub mod drink;
-pub mod move_to;
-pub mod talk;
-pub mod wait;
-pub mod wander;
+#[derive(Component, ScorerBuilder, Clone, Debug)]
+pub struct Waiting;
 
-pub fn build(app: &mut App) {
-  app.add_systems(
-    PreUpdate,
-    (
-      drink::action,
-      move_to::water::action,
-      talk::action,
-      wait::action,
-      wander::action,
-    )
-      .in_set(BigBrainSet::Actions),
-  );
+pub fn scorer_system(
+  mut query: Query<(&Actor, &mut Score), With<Waiting>>,
+  characters: Query<(&Character, Option<&TalkTarget>)>,
+) {
+  for (Actor(actor), mut score) in &mut query {
+    if let Ok((_, called)) = characters.get(*actor) {
+      score.set(if called.is_some() { 1.0 } else { 0.0 });
+    }
+  }
 }

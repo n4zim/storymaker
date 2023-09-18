@@ -20,7 +20,15 @@ use bevy::prelude::{App, First};
 
 pub mod discussion;
 pub mod thirsty;
+pub mod waiting;
 
 pub fn build(app: &mut App) {
-  app.add_systems(First, (discussion::scorer_system, thirsty::scorer_system));
+  app.add_systems(
+    First,
+    (
+      discussion::scorer_system,
+      thirsty::scorer_system,
+      waiting::scorer_system,
+    ),
+  );
 }

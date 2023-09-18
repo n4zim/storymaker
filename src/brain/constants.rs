@@ -16,25 +16,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use bevy::prelude::*;
-use big_brain::prelude::*;
+pub const SCORERS_THRESHOLD: f32 = 0.8;
 
-pub mod drink;
-pub mod move_to;
-pub mod talk;
-pub mod wait;
-pub mod wander;
-
-pub fn build(app: &mut App) {
-  app.add_systems(
-    PreUpdate,
-    (
-      drink::action,
-      move_to::water::action,
-      talk::action,
-      wait::action,
-      wander::action,
-    )
-      .in_set(BigBrainSet::Actions),
-  );
-}
+pub const MIN_TALK_DISTANCE: u32 = 2;

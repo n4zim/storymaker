@@ -17,15 +17,16 @@
  */
 
 use crate::{
-  brain::{states::sociability, THRESHOLD},
+  brain::{
+    constants::{MIN_TALK_DISTANCE, SCORERS_THRESHOLD},
+    states::sociability,
+  },
   characters::component::Character,
-  world::pathfinding::distance_from_positions,
+  world::{markers::TalkTarget, pathfinding::distance_from_positions},
 };
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::TilePos;
 use big_brain::prelude::*;
-
-const MIN_DISTANCE: u32 = 2;
 
 #[derive(Component, ScorerBuilder, Clone, Debug)]
 pub struct Discussion;
@@ -33,22 +34,26 @@ pub struct Discussion;
 pub fn scorer_system(
   states: Query<&sociability::Sociability>,
   mut query: Query<(&Actor, &mut Score), With<Discussion>>,
-  characters: Query<(&Character, &TilePos)>,
+  characters: Query<(&Character, &TilePos, Option<&TalkTarget>)>,
 ) {
-  let positions = characters.iter().map(|(_, pos)| pos).collect::<Vec<_>>();
+  let positions = characters.iter().map(|(_, pos, _)| pos).collect::<Vec<_>>();
   for (Actor(actor), mut score) in &mut query {
     if let Ok(sociability) = states.get(*actor) {
       let sociability = sociability.current / 100.;
-      if sociability < THRESHOLD {
+      if sociability < SCORERS_THRESHOLD {
         score.set(sociability);
       } else {
-        let position = characters.get(*actor).unwrap().1;
+        let (_, position, target) = characters.get(*actor).unwrap();
+        if target.is_some() {
+          score.set(1.);
+          continue;
+        }
         let mut actors = 0;
         for target in positions.iter() {
           if position == *target {
             continue;
           }
-          if distance_from_positions(position, target) < MIN_DISTANCE {
+          if distance_from_positions(position, target) < MIN_TALK_DISTANCE {
             actors += 1;
           }
         }
