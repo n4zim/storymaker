@@ -31,7 +31,7 @@ pub fn build(app: &mut App) {
     (
       drink::action,
       move_to::water::action,
-      talk::action,
+      //talk::action,
       wait::action,
       wander::action,
     )
