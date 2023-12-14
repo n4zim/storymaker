@@ -1,23 +1,20 @@
 [package]
 name = "storymaker"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 [dependencies]
-bevy = { version = "0.11", default-features = false, features = [
+bevy = { version = "0.11.3", default-features = false, features = [
   "bevy_core_pipeline",
   "bevy_render",
   "png",
   "x11",
 ] }
-bevy_ecs_tilemap = "0.11"
-bevy_egui = "0.21.0"
-bevy_turborand = "0.6.0"
-big-brain = "0.18.0"
-egui_extras = "0.22.0"
-pathfinding = "4.3.1"
-serde = { version = "1.0.186", features = ["derive"] }
-serde_json = "1.0.105"
-
-[replace]
-"bevy_ecs_tilemap:0.11.0" = { git = 'https://github.com/StarArawn/bevy_ecs_tilemap' }
+bevy_ecs_tilemap = "0.11.1" # https://github.com/Bluefinger/bevy_turborand?tab=readme-ov-file#supported-versions
+bevy_egui = "0.22.0" # https://github.com/mvlabat/bevy_egui?tab=readme-ov-file#bevy-support-table
+bevy_turborand = "0.6.0" # https://github.com/Bluefinger/bevy_turborand?tab=readme-ov-file#supported-versions
+big-brain = "0.18.0" # https://github.com/zkat/big-brain?tab=readme-ov-file#bevy-version-and-msrv
+egui_extras = "0.23.0"
+pathfinding = "4.6.0"
+serde = { version = "1.0.193", features = ["derive"] }
+serde_json = "1.0.108"
