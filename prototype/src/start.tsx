@@ -1,8 +1,9 @@
 import { useState } from "preact/hooks"
-import { send } from "./server"
+import { receive, send } from "./server"
 
 export function Start(props: {
   onStart: () => void
+  onReady: () => void
 }) {
   const [name, setName] = useState(() => {
     const param = new URLSearchParams(location.search).get("name")
@@ -22,8 +23,12 @@ export function Start(props: {
         style={{ display: "flex", flexDirection: "column", gap: 20, width: "80%" }}
         onSubmit={(e) => {
           e.preventDefault()
-          send({ type: "start", name, seed })
           props.onStart()
+          const cancel = receive("ready", () => {
+            props.onReady()
+            cancel()
+          })
+          send({ type: "start", name, seed })
         }}
       >
         <label style={{ display: "flex", flexDirection: "column" }}>
@@ -44,7 +49,7 @@ export function Start(props: {
           />
         </label>
 
-        <button type="submit" disabled={name === "" || !seed} style={{marginTop: 20 }}>
+        <button type="submit" disabled={name === "" || !seed} style={{ marginTop: 20 }}>
           Play
         </button>
       </form>
