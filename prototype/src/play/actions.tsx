@@ -1,13 +1,24 @@
 import { useEffect, useState } from "preact/hooks"
 import { receive, send } from "../server"
 
+type Action = {
+  id: string
+  name: string
+  target?: string
+}
+
 export function Actions() {
-  const [data, setData] = useState<{ id: string, name: string }[]>([])
+  const [data, setData] = useState<{
+    actions: Action[]
+    context?: any
+  }>({ actions: [] })
+
   useEffect(() => {
-    return receive<{ id: string, name: string }[]>("actions", (message) => {
-      setData(message)
+    return receive<Action[]>("actions", (actions, context) => {
+      setData({ actions, context })
     })
   }, [])
+
   return (
     <div style={{
       flexDirection: "row",
@@ -17,7 +28,7 @@ export function Actions() {
       padding: 10,
       justifyContent: "center",
     }}>
-      {data.map((action, index) => (
+      {data.actions.map((action, index) => (
         <button
           key={index}
           style={{
@@ -25,8 +36,17 @@ export function Actions() {
             padding: 10,
           }}
           onClick={() => {
-            setData([])
-            send({ type: "action", id: action.id })
+            setData({ actions: [] })
+            if(["use", "give", "sell", "throw" ].includes(action.id)) {
+              if(typeof data.context !== "object") return
+              send({
+                type: action.id,
+                id: data.context.object,
+                target: action.target,
+              })
+            } else {
+              send({ type: "action", id: action.id })
+            }
           }}
         >
           {action.name}

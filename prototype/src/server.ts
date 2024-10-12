@@ -2,7 +2,9 @@
 let ws: WebSocket | undefined
 
 let lastId = 0
-const callbacks: { [type: string]: { [id: number]: (message: any) => void } } = {}
+const callbacks: {
+  [type: string]: { [id: number]: (message: any, context?: any) => void }
+} = {}
 
 connect()
 
@@ -18,7 +20,7 @@ export function send(message: any) {
   }
 }
 
-export function receive<T>(type: string, callback: (message: T) => void) {
+export function receive<T>(type: string, callback: (message: T, context?: any) => void) {
   const id = lastId++
   if(!callbacks[type]) callbacks[type] = {}
   callbacks[type][id] = callback
@@ -34,7 +36,7 @@ function connect () {
     //console.log("Received", message)
     if(callbacks[message.type]) {
       for(const id in callbacks[message.type]) {
-        callbacks[message.type][id](message.data)
+        callbacks[message.type][id](message.data, message.context)
       }
     }
   }
