@@ -44,6 +44,8 @@ export function Actions() {
                 id: data.context.object,
                 target: action.target,
               })
+            } else if(action.id === "cancel") {
+              send({ type: "cancel" })
             } else {
               send({ type: "action", id: action.id })
             }
