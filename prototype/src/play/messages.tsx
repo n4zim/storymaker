@@ -12,10 +12,25 @@ export function Messages() {
     <div style={{ flex: 1, overflowY: "auto", borderBottom: "3px solid white" }}>
       {data.map((message, index) => (
         <div key={index} style={{ border: "1px solid white", padding: 10, margin: 10 }}>
-          <strong>{message.title}</strong>
-          <p>{message.content}</p>
+          <strong><TypeWriter text={message.title} /></strong>
+          <p><TypeWriter text={message.content} /></p>
         </div>
       ))}
     </div>
   )
+}
+
+function TypeWriter(props: { text: string }) {
+  const [text, setText] = useState("")
+  useEffect(() => {
+    if(text.length >= props.text.length) return
+    let index = 0
+    const interval = setInterval(() => {
+      setText((text) => text + props.text[index])
+      index++
+      if(index === props.text.length) clearInterval(interval)
+    }, 50)
+    return () => clearInterval(interval)
+  }, [])
+  return <>{text}</>
 }

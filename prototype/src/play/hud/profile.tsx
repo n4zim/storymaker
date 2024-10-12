@@ -15,11 +15,10 @@ export function Profile() {
 
   return (
     <Module>
-      <div>
-        Name: {data.name}
-        <br />
-        Seed: {data.seed}
-      </div>
+      <strong>Profile</strong>
+      Name: {data.name}
+      <br />
+      Seed: {data.seed}
     </Module>
   )
 }

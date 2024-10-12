@@ -24,7 +24,10 @@ export function Actions() {
             border: "1px solid black",
             padding: 10,
           }}
-          onClick={() => send({ type: "action", id: action.id })}
+          onClick={() => {
+            setData([])
+            send({ type: "action", id: action.id })
+          }}
         >
           {action.name}
         </button>

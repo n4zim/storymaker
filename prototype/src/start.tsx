@@ -9,7 +9,11 @@ export function Start(props: {
     if(param) return param
     return ""
   })
-  const [seed, setSeed] = useState(Math.floor(Math.random() * 1000000))
+  const [seed, setSeed] = useState(() => {
+    const param = new URLSearchParams(location.search).get("seed")
+    if(param) return parseInt(param)
+    return Math.floor(Math.random() * 1000000)
+  })
   return (
     <>
       <h1>StoryMaker</h1>
