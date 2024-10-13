@@ -6,8 +6,8 @@ import { addTrailingZero } from "../../utils"
 export function Profile() {
   const [data, setData] = useState<{ name: string, seed: number } | undefined>()
   const [time, setTime] = useState<{ day: number, hour: number, minute: number } | undefined>()
-  const [health, setHealth] = useState<number>(0)
-  const [energy, setEnergy] = useState<number>(0)
+  const [health, setHealth] = useState<number | undefined>()
+  const [energy, setEnergy] = useState<number | undefined>()
   const [money, setMoney] = useState<{ [type: string]: number }>({})
 
   useEffect(() => {
@@ -37,8 +37,8 @@ export function Profile() {
       {time && <span>
         Time: day {time.day} - {addTrailingZero(time.hour)}:{addTrailingZero(time.minute)}
       </span>}
-      {health > 0 && <span>Health: {health}%</span>}
-      {energy > 0 && <span>Energy: {energy}%</span>}
+      {typeof health !== "undefined" && <span>Health: {health}%</span>}
+      {typeof energy !== "undefined" && <span>Energy: {energy}%</span>}
       {moneyList.length > 0 && (
         <span>
           Money: {moneyList.map((type) => (money[type] + " " + type)).join(", ")}
