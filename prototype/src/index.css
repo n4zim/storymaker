@@ -13,9 +13,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-div {
+div, span {
   display: flex;
   flex-direction: column;
+}
+
+span {
+  flex-direction: row;
+  align-items: center;
 }
 
 html, body, #app {
