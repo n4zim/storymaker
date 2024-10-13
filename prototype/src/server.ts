@@ -20,7 +20,7 @@ export function send(message: any) {
   }
 }
 
-export function receive<T>(type: string, callback: (message: T, context?: any) => void) {
+export function receive<T = any>(type: string, callback: (message: T, context?: any) => void) {
   const id = lastId++
   if(!callbacks[type]) callbacks[type] = {}
   callbacks[type][id] = callback

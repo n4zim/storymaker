@@ -1,6 +1,7 @@
 import { useEffect, useState } from "preact/hooks"
 import { Module } from "./module"
 import { receive } from "../../server"
+import { addTrailingZero } from "../../utils"
 
 export function Profile() {
   const [data, setData] = useState<{ name: string, seed: number } | undefined>()
@@ -45,8 +46,4 @@ export function Profile() {
       )}
     </Module>
   )
-}
-
-function addTrailingZero(number: number) {
-  return number < 10 ? "0" + number : number
 }
