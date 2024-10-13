@@ -29,7 +29,7 @@ export function Messages() {
               addTrailingZero(message.time.minute)
             }`} scroll={ref}/>
           </small>
-          <p style={{ wordBreak: "break-word" }}>
+          <p style={{ wordBreak: "break-word", whiteSpace: "pre" }}>
             <TypeWriter text={message.content} scroll={ref}/>
           </p>
         </div>

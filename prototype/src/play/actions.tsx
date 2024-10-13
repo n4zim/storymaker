@@ -29,6 +29,9 @@ export function Actions() {
       justifyContent: "center",
       minHeight: 41.6,
     }}>
+      {data.context?.comment && (
+        <div style={{ padding: 10 }}>{data.context.comment}</div>
+      )}
       {data.actions.map((action, index) => (
         <button
           key={index}
