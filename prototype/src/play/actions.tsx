@@ -27,6 +27,7 @@ export function Actions() {
       gap: 10,
       padding: 10,
       justifyContent: "center",
+      minHeight: 41.6,
     }}>
       {data.actions.map((action, index) => (
         <button
@@ -47,7 +48,7 @@ export function Actions() {
             } else if(action.id === "cancel") {
               send({ type: "cancel" })
             } else {
-              send({ type: "action", id: action.id })
+              send({ type: "action", id: action.id, target: action.target })
             }
           }}
         >
