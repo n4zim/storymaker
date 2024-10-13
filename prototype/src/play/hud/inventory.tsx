@@ -25,29 +25,31 @@ export function Inventory() {
   return (
     <Module>
       <strong>Inventory</strong>
-      <table cellSpacing={5} cellPadding={0} style={{ width: "fit-content" }}>
-        <tbody>
-          {data.map((item, index) => (
-            <tr key={index}>
-              <td style={{ padding: 0 }}>
-                {item.name}
-              </td>
-              <td>
-                <Action enabled={item.usable} name="Use" onClick={() => send({ type: "use", id: item.id })} />
-              </td>
-              <td>
-                <Action enabled={item.giveable} name="Give" onClick={() => send({ type: "give", id: item.id })} />
-              </td>
-              <td>
-                <Action enabled={item.sellable} name="Sell" onClick={() => send({ type: "sell", id: item.id })} />
-              </td>
-              <td>
-                <Action enabled={item.throwable} name="Throw" onClick={() => send({ type: "throw", id: item.id })} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div style={{ overflow: "auto", maxHeight: 200 }}>
+        <table cellSpacing={5} cellPadding={0} style={{ width: "fit-content" }}>
+          <tbody>
+            {data.map((item, index) => (
+              <tr key={index}>
+                <td style={{ padding: 0 }}>
+                  {item.name}
+                </td>
+                <td>
+                  <Action enabled={item.usable} name="Use" onClick={() => send({ type: "use", id: item.id })} />
+                </td>
+                <td>
+                  <Action enabled={item.giveable} name="Give" onClick={() => send({ type: "give", id: item.id })} />
+                </td>
+                <td>
+                  <Action enabled={item.sellable} name="Sell" onClick={() => send({ type: "sell", id: item.id })} />
+                </td>
+                <td>
+                  <Action enabled={item.throwable} name="Throw" onClick={() => send({ type: "throw", id: item.id })} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </Module>
   )
 }
