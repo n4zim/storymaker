@@ -19,7 +19,7 @@ export function Map() {
     }
   }, [])
 
-  if(!data) return null
+  if(!data || data.length === 0) return null
 
   return (
     <Module>
