@@ -27,16 +27,16 @@ export function Inventory() {
                   {item.name}
                 </td>
                 <td>
-                  <Action enabled={item.usable} name="Use" onClick={() => send({ type: "use", id: item.id })} />
+                  <Action enabled={item.usable} name="Use" onClick={() => send({ type: "action", id: "use", item: item.id })} />
                 </td>
                 <td>
-                  <Action enabled={item.giveable} name="Give" onClick={() => send({ type: "give", id: item.id })} />
+                  <Action enabled={item.giveable} name="Give" onClick={() => send({ type: "action", id: "give", item: item.id })} />
                 </td>
                 <td>
-                  <Action enabled={item.sellable} name="Sell" onClick={() => send({ type: "sell", id: item.id })} />
+                  <Action enabled={item.sellable} name="Sell" onClick={() => send({ type: "action", id: "sell", item: item.id })} />
                 </td>
                 <td>
-                  <Action enabled={item.throwable} name="Throw" onClick={() => send({ type: "throw", id: item.id })} />
+                  <Action enabled={item.throwable} name="Throw" onClick={() => send({ type: "action", id: "throw", item: item.id })} />
                 </td>
               </tr>
             ))}

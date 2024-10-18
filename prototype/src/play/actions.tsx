@@ -4,6 +4,7 @@ import { receive, send } from "../server"
 type Action = {
   id: string
   name: string
+  item?: string
   target?: string
 } | null
 
@@ -46,18 +47,16 @@ export function Actions() {
             }}
             onClick={() => {
               setData({ actions: [] })
-              if(["use", "give", "sell", "throw" ].includes(action.id)) {
-                if(typeof data.context !== "object") return
-                send({
-                  type: action.id,
-                  id: data.context.object,
-                  target: action.target,
-                })
-              } else if(action.id === "cancel") {
-                send({ type: "cancel" })
-              } else {
-                send({ type: "action", id: action.id, target: action.target })
-              }
+              send(
+                action.id === "cancel"
+                  ? { type: "cancel" }
+                  : {
+                    type: "action",
+                    id: action.id,
+                    item: data.context?.item,
+                    target: action.target,
+                  }
+              )
             }}
           >
             {action.name}
