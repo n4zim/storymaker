@@ -13,15 +13,8 @@ type Item = {
 
 export function Inventory() {
   const [data, setData] = useState<Item[]>([])
-
-  useEffect(() => {
-    return receive<Item[]>("inventory", (message) => {
-      setData(message)
-    })
-  }, [])
-
+  useEffect(() => receive<Item[]>("inventory", setData), [])
   if(!data || data.length === 0) return null
-
   return (
     <Module>
       <strong>Inventory</strong>

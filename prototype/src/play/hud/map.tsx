@@ -7,12 +7,8 @@ export function Map() {
   const [position, setPosition] = useState<{ x: number, y: number } | undefined>()
 
   useEffect(() => {
-    const cancelData = receive<string[][]>("map", (message) => {
-      setData(message)
-    })
-    const cancelPosition = receive<{ x: number, y: number }>("position", (message) => {
-      setPosition(message)
-    })
+    const cancelData = receive<string[][]>("map", setData)
+    const cancelPosition = receive<{ x: number, y: number }>("position", setPosition)
     return () => {
       cancelData()
       cancelPosition()
